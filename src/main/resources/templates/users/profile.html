@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Profile</title>
+</head>
+<body>
+
+<h2>User Profile</h2>
+
+<!-- show a welcome message using the logged in user's name -->
+<p>Welcome, <span th:text="${loggedInUser.name}"></span>!
+    (<span th:text="${loggedInUser.role}"></span>)</p>
+
+<hr/>
+
+<p>Name: <span th:text="${user.name}"></span></p>
+<p>Email: <span th:text="${user.email}"></span></p>
+<p>Role: <span th:text="${user.role}"></span></p>
+<p>Member since: <span th:text="${user.createdAt}"></span></p>
+
+<br/>
+<a th:href="@{/users/edit/{id}(id=${user.id})}">Edit Profile</a>
+
+<!-- only show delete button if the logged in user is an admin -->
+<span th:if="${loggedInUser.role.name() == 'ADMIN'}">
+    &nbsp;|&nbsp;
+    <a th:href="@{/users/delete/{id}(id=${user.id})}"
+       onclick="return confirm('Are you sure?')">Delete</a>
+</span>
+
+<br/><br/>
+
+<!-- only show "view all users" link to admins -->
+<span th:if="${loggedInUser.role.name() == 'ADMIN'}">
+    <a href="/users/all">View All Users</a>
+    <br/><br/>
+</span>
+
+<!-- logout is available to everyone -->
+<a href="/dashboard">Go to Dashboard</a>
+<br/><br/>
+<a href="/users/logout">Logout</a>
+
+</body>
+</html>

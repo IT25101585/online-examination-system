@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Users</title>
+</head>
+<body>
+
+<h2>All Users</h2>
+
+<p th:if="${#lists.isEmpty(users)}">No users found.</p>
+
+<table border="1" th:unless="${#lists.isEmpty(users)}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.name}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:text="${user.role}"></td>
+        <td>
+            <a th:href="@{/users/profile/{id}(id=${user.id})}">View</a>
+            &nbsp;|&nbsp;
+            <a th:href="@{/users/edit/{id}(id=${user.id})}">Edit</a>
+            &nbsp;|&nbsp;
+            <a th:href="@{/users/delete/{id}(id=${user.id})}">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<br/>
+<a href="/users/register">Add New User</a>
+<br/><br/>
+<a href="/dashboard">Go to Dashboard</a>
+</body>
+</html>
