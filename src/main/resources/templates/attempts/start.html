@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Start Exam</title>
+</head>
+<body>
+
+<h2>Ready to start?</h2>
+
+<h3 th:text="${exam.title}"></h3>
+<p>Description: <span th:text="${exam.description}"></span></p>
+<p>Duration: <span th:text="${exam.durationMins}"></span> minutes</p>
+<p>Total Marks: <span th:text="${exam.totalMarks}"></span></p>
+<p>Number of Questions: <span th:text="${questionCount}"></span></p>
+
+<p style="color:red">Once you start, you cannot restart the exam!</p>
+
+<p th:if="${error}" th:text="${error}" style="color:red"></p>
+
+<form th:action="@{/attempts/start/{examId}(examId=${exam.id})}" method="post">
+    <button type="submit">Start Exam</button>
+</form>
+
+<br/>
+<a href="/dashboard">Back to Dashboard</a>
+
+</body>
+</html>

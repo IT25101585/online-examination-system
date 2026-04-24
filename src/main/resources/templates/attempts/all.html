@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Attempts</title>
+</head>
+<body>
+
+<h2>Student Attempts for: <span th:text="${exam.title}"></span></h2>
+
+<p th:if="${#lists.isEmpty(attempts)}">No attempts yet.</p>
+
+<table border="1" th:unless="${#lists.isEmpty(attempts)}">
+    <thead>
+    <tr>
+        <th>Student</th>
+        <th>Score</th>
+        <th>Total Marks</th>
+        <th>Percentage</th>
+        <th>Status</th>
+        <th>Submitted At</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="attempt : ${attempts}">
+        <td th:text="${attempt.student.name}"></td>
+        <td th:text="${attempt.totalScore}"></td>
+        <td th:text="${exam.totalMarks}"></td>
+        <td th:text="${#numbers.formatDecimal(
+                (attempt.totalScore * 100.0 / exam.totalMarks), 1, 1)} + '%'">
+        </td>
+        <td th:text="${attempt.status}"></td>
+        <td th:text="${attempt.submittedAt}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<br/>
+<a th:href="@{/exams/{id}(id=${exam.id})}">Back to Exam</a>
+&nbsp;|&nbsp;
+<a href="/dashboard">Back to Dashboard</a>
+
+</body>
+</html>

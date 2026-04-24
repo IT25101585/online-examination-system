@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Result</title>
+</head>
+<body>
+
+<h2>Exam Result</h2>
+
+<h3 th:text="${exam.title}"></h3>
+
+<p>Status: <strong th:text="${attempt.status}"></strong></p>
+<p>Score: <strong th:text="${attempt.totalScore}"></strong>
+    out of <strong th:text="${exam.totalMarks}"></strong></p>
+<p>Percentage: <strong th:text="${percentage} + '%'"></strong></p>
+
+<!-- show pass or fail based on percentage -->
+<p th:if="${percentage >= 50}" style="color:green"><strong>PASSED!</strong></p>
+<p th:if="${percentage < 50}" style="color:red"><strong>FAILED!</strong></p>
+
+<p>Started at: <span th:text="${attempt.startedAt}"></span></p>
+<p>Submitted at: <span th:text="${attempt.submittedAt}"></span></p>
+
+<br/>
+<a th:href="@{/results/{id}(id=${attempt.id})}">View Full Result</a>
+<br/><br/>
+<a href="/results/history">My Exam History</a>
+<br/><br/>
+<a href="/dashboard">Back to Dashboard</a>
+
+</body>
+</html>
