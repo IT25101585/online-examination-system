@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Exams</title>
+</head>
+<body>
+
+<h2>Exams</h2>
+
+<!-- show create button only for admins and teachers -->
+<span th:unless="${loggedInUser.role.name() == 'STUDENT'}">
+    <a href="/exams/create">+ Create New Exam</a>
+    <br/><br/>
+</span>
+
+<p th:if="${#lists.isEmpty(exams)}">No exams found.</p>
+
+<table border="1" th:unless="${#lists.isEmpty(exams)}">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Duration</th>
+        <th>Total Marks</th>
+        <th>Status</th>
+        <th>Created By</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="exam : ${exams}">
+        <td th:text="${exam.title}"></td>
+        <td th:text="${exam.durationMins} + ' mins'"></td>
+        <td th:text="${exam.totalMarks}"></td>
+        <td th:text="${exam.status}"></td>
+        <td th:text="${exam.createdBy.name}"></td>
+        <td>
+            <a th:href="@{/exams/{id}(id=${exam.id})}">View</a>
+
+            <span th:unless="${loggedInUser.role.name() == 'STUDENT'}">
+                    &nbsp;|&nbsp;
+                    <a th:href="@{/exams/edit/{id}(id=${exam.id})}">Edit</a>
+                    &nbsp;|&nbsp;
+                    <a th:if="${exam.status.name() == 'DRAFT'}"
+                       th:href="@{/exams/publish/{id}(id=${exam.id})}">Publish</a>
+                    <a th:if="${exam.status.name() == 'PUBLISHED'}"
+                       th:href="@{/exams/unpublish/{id}(id=${exam.id})}">Unpublish</a>
+                </span>
+
+            <span th:if="${loggedInUser.role.name() == 'ADMIN'}">
+                    &nbsp;|&nbsp;
+                    <a th:href="@{/exams/delete/{id}(id=${exam.id})}"
+                       onclick="return confirm('Are you sure?')">Delete</a>
+                </span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<br/>
+<a href="/users/profile/1">Back to Profile</a>
+
+<a href="/dashboard">Go to Dashboard</a>
+
+</body>
+</html>

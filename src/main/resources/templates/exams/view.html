@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Exam</title>
+</head>
+<body>
+
+<h2 th:text="${exam.title}">Exam Title</h2>
+
+<p>Description: <span th:text="${exam.description}"></span></p>
+<p>Duration: <span th:text="${exam.durationMins}"></span> minutes</p>
+<p>Total Marks: <span th:text="${exam.totalMarks}"></span></p>
+<p>Status: <span th:text="${exam.status}"></span></p>
+<p>Created by: <span th:text="${exam.createdBy.name}"></span></p>
+<p>Created at: <span th:text="${exam.createdAt}"></span></p>
+
+<br/>
+
+<span th:unless="${loggedInUser.role.name() == 'STUDENT'}">
+    <a th:href="@{/exams/edit/{id}(id=${exam.id})}">Edit</a>
+    &nbsp;|&nbsp;
+    <a th:if="${exam.status.name() == 'DRAFT'}"
+       th:href="@{/exams/publish/{id}(id=${exam.id})}">Publish</a>
+    <a th:if="${exam.status.name() == 'PUBLISHED'}"
+       th:href="@{/exams/unpublish/{id}(id=${exam.id})}">Unpublish</a>
+    &nbsp;|&nbsp;
+</span>
+
+<span th:if="${loggedInUser.role.name() == 'ADMIN'}">
+    <a th:href="@{/exams/delete/{id}(id=${exam.id})}"
+       onclick="return confirm('Are you sure?')">Delete</a>
+</span>
+
+<br/><br/>
+<a th:href="@{/questions/exam/{id}(id=${exam.id})}">View Questions</a>
+<br/><br/>
+
+<span th:unless="${loggedInUser.role.name() == 'STUDENT'}">
+    <a th:href="@{/attempts/exam/{id}(id=${exam.id})}">View Student Attempts</a>
+    &nbsp;|&nbsp;
+    <a th:href="@{/results/exam/{id}(id=${exam.id})}">View Results</a>
+    <br/><br/>
+</span>
+
+<a href="/exams">Back to Exams</a>
+
+</body>
+</html>
