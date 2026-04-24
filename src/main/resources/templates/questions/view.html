@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Question</title>
+</head>
+<body>
+
+<h2>Question Details</h2>
+
+<p>Question: <span th:text="${question.questionText}"></span></p>
+<p>Type: <span th:text="${question.questionType}"></span></p>
+<p>Marks: <span th:text="${question.marks}"></span></p>
+
+<div th:if="${question.questionType.name() == 'MCQ'}">
+    <p>Option A: <span th:text="${question.optionA}"></span></p>
+    <p>Option B: <span th:text="${question.optionB}"></span></p>
+    <p>Option C: <span th:text="${question.optionC}"></span></p>
+    <p>Option D: <span th:text="${question.optionD}"></span></p>
+</div>
+
+<p>Correct Answer: <span th:text="${question.correctAnswer}"></span></p>
+
+<br/>
+<a th:href="@{/questions/edit/{id}(id=${question.id})}">Edit</a>
+&nbsp;|&nbsp;
+<a th:href="@{/questions/exam/{examId}(examId=${question.exam.id})}">Back to Questions</a>
+
+</body>
+</html>

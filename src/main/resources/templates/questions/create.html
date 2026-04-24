@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Question</title>
+</head>
+<body>
+
+<h2>Add Question to: <span th:text="${exam.title}"></span></h2>
+
+<form th:action="@{/questions/create/{examId}(examId=${examId})}"
+      th:object="${question}" method="post">
+
+    <label>Question Text:</label>
+    <textarea th:field="*{questionText}" rows="3" cols="50" required></textarea>
+    <span th:if="${#fields.hasErrors('questionText')}"
+          th:errors="*{questionText}" style="color:red"></span>
+    <br/><br/>
+
+    <label>Question Type:</label>
+    <select th:field="*{questionType}" id="questionType" onchange="toggleOptions()">
+        <option th:each="type : ${questionTypes}"
+                th:value="${type}"
+                th:text="${type}">
+        </option>
+    </select>
+    <span th:if="${#fields.hasErrors('questionType')}"
+          th:errors="*{questionType}" style="color:red"></span>
+    <br/><br/>
+
+    <!-- MCQ options — only shown when MCQ is selected -->
+    <div id="mcqOptions">
+        <label>Option A:</label>
+        <input type="text" th:field="*{optionA}"/><br/><br/>
+
+        <label>Option B:</label>
+        <input type="text" th:field="*{optionB}"/><br/><br/>
+
+        <label>Option C:</label>
+        <input type="text" th:field="*{optionC}"/><br/><br/>
+
+        <label>Option D:</label>
+        <input type="text" th:field="*{optionD}"/><br/><br/>
+    </div>
+
+    <label>Correct Answer:</label>
+    <input type="text" th:field="*{correctAnswer}" required
+           placeholder="For MCQ: A/B/C/D | For True/False: TRUE or FALSE"/>
+    <span th:if="${#fields.hasErrors('correctAnswer')}"
+          th:errors="*{correctAnswer}" style="color:red"></span>
+    <br/><br/>
+
+    <label>Marks:</label>
+    <input type="number" th:field="*{marks}" min="1" required/>
+    <span th:if="${#fields.hasErrors('marks')}"
+          th:errors="*{marks}" style="color:red"></span>
+    <br/><br/>
+
+    <button type="submit">Add Question</button>
+</form>
+
+<br/>
+<a th:href="@{/questions/exam/{examId}(examId=${examId})}">Back to Questions</a>
+
+<script>
+    // shows or hides MCQ options based on question type selected
+    function toggleOptions() {
+        var type = document.getElementById('questionType').value;
+        var mcqDiv = document.getElementById('mcqOptions');
+        mcqDiv.style.display = (type === 'MCQ') ? 'block' : 'none';
+    }
+    // run on page load to set initial state
+    toggleOptions();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Questions</title>
+</head>
+<body>
+
+<h2>Questions for: <span th:text="${exam.title}"></span></h2>
+<p>Total questions: <span th:text="${questionCount}"></span></p>
+
+<a th:href="@{/questions/create/{examId}(examId=${exam.id})}">+ Add Question</a>
+<br/><br/>
+
+<p th:if="${#lists.isEmpty(questions)}">No questions yet. Add some!</p>
+
+<table border="1" th:unless="${#lists.isEmpty(questions)}">
+    <thead>
+    <tr>
+        <th>Question</th>
+        <th>Type</th>
+        <th>Marks</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="question : ${questions}">
+        <td th:text="${question.questionText}"></td>
+        <td th:text="${question.questionType}"></td>
+        <td th:text="${question.marks}"></td>
+        <td>
+            <a th:href="@{/questions/{id}(id=${question.id})}">View</a>
+            &nbsp;|&nbsp;
+            <a th:href="@{/questions/edit/{id}(id=${question.id})}">Edit</a>
+            &nbsp;|&nbsp;
+            <a th:href="@{/questions/delete/{id}(id=${question.id})}"
+               onclick="return confirm('Delete this question?')">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<br/>
+<a th:href="@{/exams/{id}(id=${exam.id})}">Back to Exam</a>
+
+</body>
+</html>
