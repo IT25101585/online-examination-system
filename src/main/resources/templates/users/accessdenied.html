@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Access Denied</title>
+</head>
+<body>
+
+<h2>Access Denied</h2>
+
+<p th:if="${error}" th:text="${error}" style="color:red"></p>
+<p th:unless="${error}">You do not have permission to access this page.</p>
+
+<br/>
+<a href="/users/login">Go to Login</a>
+
+</body>
+</html>
