@@ -1,17 +1,23 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
     <title>Access Denied</title>
 </head>
 <body>
+<div layout:fragment="content">
 
-<h2>Access Denied</h2>
+    <h2>Access Denied</h2>
 
-<p th:if="${error}" th:text="${error}" style="color:red"></p>
-<p th:unless="${error}">You do not have permission to access this page.</p>
+    <p th:if="${error}" th:text="${error}" style="color:red"></p>
+    <p th:unless="${error}">You do not have permission to access this page.</p>
 
-<br/>
-<a href="/users/login">Go to Login</a>
+    <br/>
+    <a href="/dashboard">Go to Dashboard</a>
+    &nbsp;|&nbsp;
+    <a href="/users/login">Go to Login</a>
 
+</div>
 </body>
 </html>
