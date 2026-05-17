@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Sessions</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="page-title">Exam Sessions</h2>
+                <p class="text-muted mb-0">
+                    Exam: <strong th:text="${exam.title}"></strong>
+                </p>
+            </div>
+            <div class="col-auto"
+                 th:if="${loggedInUser.role.name() == 'TEACHER'}">
+                <a th:href="@{/sessions/create/{examId}
+                    (examId=${exam.id})}"
+                   class="btn btn-primary">+ Create Session</a>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(sessions)}" class="empty">
+        <p class="empty-title">No Sessions Yet</p>
+        <p class="empty-subtitle text-muted">
+            Create a session to schedule this exam.
+        </p>
+    </div>
+
+    <div class="card" th:unless="${#lists.isEmpty(sessions)}">
+        <div class="card-body p-0">
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>Label</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="examSess : ${sessions}">
+                    <td th:text="${examSess.label != null ?
+                            examSess.label :
+                            'Session ' + examSess.id}"></td>
+                    <td class="text-muted"
+                        th:text="${examSess.startTime}"></td>
+                    <td class="text-muted"
+                        th:text="${examSess.endTime}"></td>
+                    <td>
+                            <span class="badge bg-success-lt"
+                                  th:if="${examSess.status.name()
+                                      == 'ACTIVE'}">Active</span>
+                        <span class="badge bg-warning-lt"
+                              th:if="${examSess.status.name()
+                                      == 'SCHEDULED'}">Scheduled</span>
+                        <span class="badge bg-secondary-lt"
+                              th:if="${examSess.status.name()
+                                      == 'CLOSED'}">Closed</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/sessions/preview/{id}
+                                (id=${examSess.id})}"
+                           class="btn btn-sm
+                                      btn-outline-secondary me-1">
+                            Preview
+                        </a>
+                        <a th:if="${examSess.status.name()
+                                == 'CLOSED'}"
+                           th:href="@{/results/exam/{id}
+                                   (id=${exam.id})}"
+                           class="btn btn-sm
+                                      btn-outline-primary me-1">
+                            Results
+                        </a>
+                        <a th:if="${examSess.status.name()
+                                == 'SCHEDULED'}"
+                           th:href="@{/sessions/delete/{id}
+                                   (id=${examSess.id})}"
+                           onclick="return confirm(
+                                   'Delete this session?')"
+                           class="btn btn-sm btn-outline-danger">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a th:href="@{/exams/{id}(id=${exam.id})}"
+           class="btn btn-outline-secondary">← Back to Exam</a>
+        <a href="/sessions" class="btn btn-outline-secondary ms-2">
+            ← All Sessions
+        </a>
+    </div>
+</div>
+</body>
+</html>
