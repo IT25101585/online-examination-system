@@ -1,0 +1,23 @@
+/* custom overrides on top of Tabler */
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.page-wrapper {
+    padding-top: 1.5rem;
+}
+
+/* question toggle */
+#mcqOptions {
+    display: none;
+}
+
+/* exam timer */
+#exam-timer {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--tblr-green);
+}
+
