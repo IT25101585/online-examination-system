@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Session Details</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h2 th:text="${examSession.label != null ?
+        examSession.label : 'Session ' + examSession.id}"></h2>
+
+    <div class="card">
+        <p><strong>Exam:</strong>
+            <span th:text="${examSession.exam.title}"></span></p>
+        <p><strong>Start Time:</strong>
+            <span th:text="${examSession.startTime}"></span></p>
+        <p><strong>End Time:</strong>
+            <span th:text="${examSession.endTime}"></span></p>
+        <p><strong>Status:</strong>
+            <span class="badge-published"
+                  th:if="${examSession.status.name() == 'ACTIVE'}">
+                ACTIVE
+            </span>
+            <span class="badge-draft"
+                  th:if="${examSession.status.name() == 'SCHEDULED'}">
+                SCHEDULED
+            </span>
+            <span class="badge-fail"
+                  th:if="${examSession.status.name() == 'CLOSED'}">
+                CLOSED
+            </span>
+        </p>
+    </div>
+
+    <div style="margin-top:16px;">
+        <a th:href="@{/sessions/preview/{id}(id=${examSession.id})}">
+            Preview Questions
+        </a>
+
+        <!-- results only visible after session closes -->
+        <span th:if="${isClosed}">
+            &nbsp;|&nbsp;
+            <a th:href="@{/results/exam/{id}(id=${examSession.exam.id})}">
+                View Results
+            </a>
+        </span>
+        <span th:unless="${isClosed}"
+              style="color:#64748b; font-size:13px;">
+            &nbsp;| Results available after session closes
+        </span>
+    </div>
+
+    <br/>
+    <a th:href="@{/sessions/exam/{id}(id=${examSession.exam.id})}">
+        ← Back to Sessions
+    </a>
+
+</div>
+</body>
+</html>
