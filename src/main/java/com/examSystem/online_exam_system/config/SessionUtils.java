@@ -38,3 +38,5 @@ public class SessionUtils {
         return isAdmin(session) || isOwner(session, profileId);
     }
 }
+
+
