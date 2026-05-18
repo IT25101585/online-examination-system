@@ -69,7 +69,7 @@ public class Exam {
     public Integer getDurationMins() { return durationMins; }
     public void setDurationMins(Integer durationMins) { this.durationMins = durationMins; }
 
-    public Integer getTotalMarks() { return totalMarks; }
+    public Double getTotalMarks() { return totalMarks; }
     public void setTotalMarks(Integer totalMarks) { this.totalMarks = totalMarks; }
 
     public ExamStatus getStatus() { return status; }
