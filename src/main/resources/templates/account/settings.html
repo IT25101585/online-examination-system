@@ -1,47 +1,73 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Account Settings</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Account Settings</title></head>
 <body>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">Account Settings</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title">Personal Information</h3>
+                </div>
+                <div class="card-body">
+                    <div th:if="${success}"
+                         class="alert alert-success mb-3"
+                         th:text="${success}"></div>
+                    <div th:if="${error}"
+                         class="alert alert-danger mb-3"
+                         th:text="${error}"></div>
+                    <form th:action="@{/account/settings}"
+                          th:object="${user}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" th:field="*{name}"
+                                   class="form-control" required/>
+                            <div th:if="${#fields.hasErrors('name')}"
+                                 class="invalid-feedback d-block"
+                                 th:errors="*{name}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" th:field="*{email}"
+                                   class="form-control" required/>
+                            <div th:if="${#fields.hasErrors('email')}"
+                                 class="invalid-feedback d-block"
+                                 th:errors="*{email}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <input type="text" class="form-control"
+                                   th:value="${user.role}" disabled/>
+                            <input type="hidden" th:field="*{password}"/>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
 
-<h2>Account Settings</h2>
-<p>Logged in as: <strong th:text="${loggedInUser.name}"></strong>
-    (<span th:text="${loggedInUser.role}"></span>)</p>
-
-<!-- success message -->
-<p th:if="${success}" th:text="${success}" style="color:green"></p>
-<!-- error message -->
-<p th:if="${error}" th:text="${error}" style="color:red"></p>
-
-<form th:action="@{/account/settings}" th:object="${user}" method="post">
-
-    <label>Name:</label>
-    <input type="text" th:field="*{name}" required/>
-    <span th:if="${#fields.hasErrors('name')}"
-          th:errors="*{name}" style="color:red"></span>
-    <br/><br/>
-
-    <label>Email:</label>
-    <input type="email" th:field="*{email}" required/>
-    <span th:if="${#fields.hasErrors('email')}"
-          th:errors="*{email}" style="color:red"></span>
-    <br/><br/>
-
-    <!-- show role but don't let user change it -->
-    <label>Role:</label>
-    <input type="text" th:value="${user.role}" disabled/>
-    <!-- hidden field to pass password through form unchanged -->
-    <input type="hidden" th:field="*{password}"/>
-    <br/><br/>
-
-    <button type="submit">Save Changes</button>
-</form>
-
-<br/>
-<a href="/account/changepassword">Change Password</a>
-<br/><br/>
-<a href="/dashboard">Back to Dashboard</a>
-
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Security</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">
+                        Change your password to keep your account secure.
+                    </p>
+                    <a href="/account/changepassword"
+                       class="btn btn-outline-primary">
+                        Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

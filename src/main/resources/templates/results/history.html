@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Exam History</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">My Exam History</h2>
+    </div>
+
+    <div class="row row-deck row-cards mb-3">
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="subheader">Total Taken</div>
+                    <div class="h1 mb-0"
+                         th:text="${#lists.size(results)}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="subheader">Passed</div>
+                    <div class="h1 mb-0 text-success"
+                         th:text="${passCount}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="subheader">Failed</div>
+                    <div class="h1 mb-0 text-danger"
+                         th:text="${failCount}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(results)}" class="empty">
+        <p class="empty-title">No Exam History</p>
+        <p class="empty-subtitle text-muted">
+            You haven't taken any exams yet.
+        </p>
+    </div>
+
+    <div class="card" th:unless="${#lists.isEmpty(results)}">
+        <div class="card-body p-0">
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>Exam</th>
+                    <th>Score</th>
+                    <th>%</th>
+                    <th>Grade</th>
+                    <th>Result</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="result : ${results}">
+                    <td th:text="${result.exam.title}"></td>
+                    <td th:text="${result.totalScore} + '/' +
+                            ${result.totalMarks}"></td>
+                    <td th:text="${result.percentage} + '%'"></td>
+                    <td><strong th:text="${result.grade}"></strong>
+                    </td>
+                    <td>
+                            <span class="badge bg-success-lt"
+                                  th:if="${result.passed}">PASSED</span>
+                        <span class="badge bg-danger-lt"
+                              th:unless="${result.passed}">FAILED</span>
+                    </td>
+                    <td class="text-muted"
+                        th:text="${result.calculatedAt}"></td>
+                    <td>
+                        <a th:href="@{/results/{id}
+                                (id=${result.attempt.id})}"
+                           class="btn btn-sm
+                                      btn-outline-secondary">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

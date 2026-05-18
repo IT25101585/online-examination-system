@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>View User</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="page-title">User Details</h2>
+            </div>
+            <div class="col-auto">
+                <a href="/users/all" class="btn btn-outline-secondary">
+                    ← Back to Users
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Personal Information</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-5">Name</dt>
+                        <dd class="col-7"
+                            th:text="${viewedUser.name}"></dd>
+                        <dt class="col-5">Email</dt>
+                        <dd class="col-7"
+                            th:text="${viewedUser.email}"></dd>
+                        <dt class="col-5">Role</dt>
+                        <dd class="col-7">
+                            <span class="badge bg-blue-lt"
+                                  th:if="${viewedUser.role.name() == 'ADMIN'}"
+                                  th:text="${viewedUser.role}"></span>
+                            <span class="badge bg-green-lt"
+                                  th:if="${viewedUser.role.name() == 'TEACHER'}"
+                                  th:text="${viewedUser.role}"></span>
+                            <span class="badge bg-purple-lt"
+                                  th:if="${viewedUser.role.name() == 'STUDENT'}"
+                                  th:text="${viewedUser.role}"></span>
+                        </dd>
+                        <dt class="col-5">Member Since</dt>
+                        <dd class="col-7"
+                            th:text="${viewedUser.createdAt}"></dd>
+                        <dt class="col-5">Last Login</dt>
+                        <dd class="col-7">
+                            <span th:if="${viewedUser.lastLogin != null}"
+                                  th:text="${viewedUser.lastLogin}"></span>
+                            <span th:if="${viewedUser.lastLogin == null}"
+                                  class="text-muted">Never logged in</span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <a th:href="@{/users/delete/{id}
+                        (id=${viewedUser.id})}"
+                       onclick="return confirm('Delete this user?')"
+                       class="btn btn-danger">
+                        Delete User
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

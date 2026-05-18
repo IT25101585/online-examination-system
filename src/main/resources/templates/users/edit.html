@@ -1,37 +1,67 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Edit Profile</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Edit Profile</title></head>
 <body>
-
-<h2>Edit Profile</h2>
-
-<form th:action="@{/users/edit/{id}(id=${user.id})}" th:object="${user}" method="post">
-
-    <label>Name:</label>
-    <input type="text" th:field="*{name}" required/><br/><br/>
-
-    <label>Email:</label>
-    <input type="email" th:field="*{email}" required/><br/><br/>
-
-    <label>Password:</label>
-    <input type="password" th:field="*{password}" required/><br/><br/>
-
-    <label>Role:</label>
-    <select th:field="*{role}">
-        <option th:each="role : ${roles}"
-                th:value="${role}"
-                th:text="${role}">
-        </option>
-    </select><br/><br/>
-
-    <button type="submit">Save Changes</button>
-</form>
-
-<p th:if="${error}" th:text="${error}" style="color:red"></p>
-
-<a th:href="@{/users/profile/{id}(id=${user.id})}">Cancel</a>
-
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">Edit Profile</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/users/edit/{id}(id=${user.id})}"
+                          th:object="${user}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" th:field="*{name}"
+                                   class="form-control" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" th:field="*{email}"
+                                   class="form-control" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" th:field="*{password}"
+                                   class="form-control" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select th:field="*{role}"
+                                    class="form-select"
+                                    th:if="${isAdmin}">
+                                <option th:each="role : ${roles}"
+                                        th:value="${role}"
+                                        th:text="${role}"></option>
+                            </select>
+                            <input type="text" class="form-control"
+                                   th:unless="${isAdmin}"
+                                   th:value="${user.role}" disabled/>
+                            <input type="hidden" th:unless="${isAdmin}"
+                                   th:field="*{role}"/>
+                        </div>
+                        <div th:if="${error}"
+                             class="alert alert-danger"
+                             th:text="${error}"></div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                Save Changes
+                            </button>
+                            <a th:href="@{/users/profile/{id}
+                                (id=${user.id})}"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -23,7 +23,14 @@ public class UserController {
 
     //displaying registration form
     @GetMapping("/register")
-    public String showRegisterForm(Model model) {
+    public String showRegisterForm(HttpSession session, Model model) {
+        //if already logged in, warn them
+        if(SessionUtils.isLoggedIn(session)){
+            model.addAttribute("alreadyLoggedIn", true);
+            model.addAttribute("loggedInUser",
+                    SessionUtils.getLoggedInUser(session));
+            return "users/alreadyloggedin";
+        }
         model.addAttribute("user", new User());
         model.addAttribute("roles", Role.values());
         return "users/register";
@@ -33,14 +40,20 @@ public class UserController {
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute User user,
                                BindingResult result,
+                               HttpSession session,
                                Model model) {
         if (result.hasErrors()) {
             model.addAttribute("roles", Role.values());
             return "users/register";
         }
         try {
-            userService.registerUser(user);
-            return "redirect:/users/login";
+            // save user to database
+            User savedUser = userService.registerUser(user);
+
+            // auto-login: save user to session immediately after registration
+            // so they go straight to dashboard without having to login again
+            session.setAttribute("loggedInUser", savedUser);
+            return "redirect:/dashboard";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("roles", Role.values());
@@ -50,7 +63,14 @@ public class UserController {
 
     // ---- SHOW LOGIN FORM ----
     @GetMapping("/login")
-    public String showLoginForm() {
+    public String showLoginForm(HttpSession session, Model model) {
+        // if someone is already logged in and tries to visit login page
+        // show them a warning with logout or cancel options
+        if (SessionUtils.isLoggedIn(session)) {
+            model.addAttribute("loggedInUser",
+                    SessionUtils.getLoggedInUser(session));
+            return "users/alreadyloggedin";
+        }
         return "users/login";
     }
 
@@ -60,6 +80,12 @@ public class UserController {
                             @RequestParam String password,
                             HttpSession session,
                             Model model) {
+        // if already logged in, block login and show warning
+        if (SessionUtils.isLoggedIn(session)) {
+            model.addAttribute("loggedInUser",
+                    SessionUtils.getLoggedInUser(session));
+            return "users/alreadyloggedin";
+        }
         try {
             User user = userService.loginUser(email, password);
             session.setAttribute("loggedInUser", user);
@@ -98,6 +124,22 @@ public class UserController {
         // pass the logged in user so we can show their name in the page
         model.addAttribute("loggedInUser", SessionUtils.getLoggedInUser(session));
         return "users/profile";
+    }
+
+    // ---- VIEW OTHER USER'S PROFILE (admin only) ----
+    @GetMapping("/view/{id}")
+    public String viewUserProfile(@PathVariable Long id,
+                                  HttpSession session,
+                                  Model model) {
+        if (!SessionUtils.isAdmin(session)) {
+            model.addAttribute("error", "Access denied! Admins only.");
+            return "users/accessdenied";
+        }
+        User viewedUser = userService.getUserById(id);
+        model.addAttribute("viewedUser", viewedUser);
+        model.addAttribute("loggedInUser",
+                SessionUtils.getLoggedInUser(session));
+        return "users/viewuser";
     }
 
     // ---- SHOW EDIT FORM ----
@@ -161,13 +203,14 @@ public class UserController {
     // ---- VIEW ALL USERS (admin only) ----
     @GetMapping("/all")
     public String getAllUsers(HttpSession session, Model model) {
-        // only admins can see all users
         if (!SessionUtils.isAdmin(session)) {
             model.addAttribute("error", "Access denied! Admins only.");
             return "users/accessdenied";
         }
         List<User> users = userService.getAllUsers();
         model.addAttribute("users", users);
+        model.addAttribute("loggedInUser",
+                SessionUtils.getLoggedInUser(session));
         return "users/all";
     }
 
@@ -176,19 +219,29 @@ public class UserController {
     public String deleteUser(@PathVariable Long id,
                              HttpSession session,
                              Model model) {
-        // only admins can delete users
         if (!SessionUtils.isAdmin(session)) {
             model.addAttribute("error", "Access denied! Admins only.");
             return "users/accessdenied";
         }
-        // prevent admin from deleting themselves
         if (SessionUtils.isOwner(session, id)) {
-            model.addAttribute("error", "You cannot delete your own account!");
+            model.addAttribute("error",
+                    "You cannot delete your own account!");
             List<User> users = userService.getAllUsers();
             model.addAttribute("users", users);
+            model.addAttribute("loggedInUser",
+                    SessionUtils.getLoggedInUser(session));
             return "users/all";
         }
+        // save name before deleting for confirmation message
+        String deletedName = userService.getUserById(id).getName();
         userService.deleteUser(id);
-        return "redirect:/users/all";
+
+        // pass everything needed back to all users page
+        List<User> users = userService.getAllUsers();
+        model.addAttribute("users", users);
+        model.addAttribute("loggedInUser",
+                SessionUtils.getLoggedInUser(session));
+        model.addAttribute("deletedUser", deletedName);
+        return "users/all";
     }
 }

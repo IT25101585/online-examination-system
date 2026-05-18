@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/auth}">
+<head><title>Already Logged In</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="container container-tight py-4">
+        <div class="card card-md">
+            <div class="card-body text-center">
+                <div class="mb-3" style="font-size:3rem;">⚠️</div>
+                <h2 class="h2 mb-2">Already Logged In</h2>
+                <p class="text-muted mb-4">
+                    You are already signed in as
+                    <strong th:text="${loggedInUser.name}"></strong>
+                    (<span th:text="${loggedInUser.role}"></span>).
+                    Log out first to sign in as a different user.
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="/dashboard" class="btn btn-primary">
+                        Continue as
+                        <span th:text="${loggedInUser.name}"></span>
+                    </a>
+                    <a href="/users/logout" class="btn btn-outline-danger">
+                        Logout &amp; Switch Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

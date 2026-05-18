@@ -2,50 +2,54 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
-<head><title>Change Password</title></head>
+<head><title>Create Session</title></head>
 <body>
 <div layout:fragment="content">
     <div class="page-header mb-3">
-        <h2 class="page-title">Change Password</h2>
+        <h2 class="page-title">Create Exam Session</h2>
+        <p class="text-muted">
+            Exam: <strong th:text="${exam.title}"></strong>
+            &nbsp;·&nbsp;
+            Duration: <strong th:text="${exam.durationMins}
+                + ' minutes'"></strong>
+        </p>
     </div>
     <div class="row">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <div th:if="${success}"
-                         class="alert alert-success mb-3"
-                         th:text="${success}"></div>
                     <div th:if="${error}"
                          class="alert alert-danger mb-3"
                          th:text="${error}"></div>
-                    <form th:action="@{/account/changepassword}"
-                          method="post">
+                    <form th:action="@{/sessions/create/{examId}
+                              (examId=${exam.id})}" method="post">
                         <div class="mb-3">
                             <label class="form-label">
-                                Current Password
+                                Session Label (optional)
                             </label>
-                            <input type="password"
-                                   name="currentPassword"
-                                   class="form-control" required/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">New Password</label>
-                            <input type="password" name="newPassword"
-                                   class="form-control" required/>
+                            <input type="text" name="label"
+                                   class="form-control"
+                                   placeholder="e.g. Morning Session"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">
-                                Confirm New Password
+                                Start Date &amp; Time
                             </label>
-                            <input type="password"
-                                   name="confirmNewPassword"
+                            <input type="datetime-local"
+                                   name="startTime"
                                    class="form-control" required/>
+                            <div class="form-hint">
+                                Session ends automatically after
+                                <strong th:text="${exam.durationMins}">
+                                </strong> minutes.
+                            </div>
                         </div>
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                Change Password
+                                Create &amp; Preview Questions
                             </button>
-                            <a href="/account/settings"
+                            <a th:href="@{/sessions/exam/{examId}
+                                (examId=${exam.id})}"
                                class="btn btn-outline-secondary">
                                 Cancel
                             </a>
