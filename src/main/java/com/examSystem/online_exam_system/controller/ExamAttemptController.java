@@ -146,10 +146,13 @@ public class ExamAttemptController {
     }
 
     // ---- SUBMIT EXAM ----
+    // after submit, go to results/{attemptId}
+    // ResultController.viewResult handles the
+    // pending approval check for students
     @PostMapping("/submit/{attemptId}")
     public String submitExam(
             @PathVariable Long attemptId,
-            @RequestParam Map<String, String> answers,
+            @RequestParam java.util.Map<String, String> answers,
             HttpSession httpSession,
             Model model) {
         if (!SessionUtils.isLoggedIn(httpSession)) {
@@ -158,7 +161,8 @@ public class ExamAttemptController {
         try {
             ExamAttempt attempt =
                     examAttemptService.submitExam(attemptId, answers);
-            return "redirect:/attempts/result/" + attempt.getId();
+            // go to results controller which checks approval status
+            return "redirect:/results/" + attempt.getId();
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             return "attempts/take";

@@ -2,6 +2,7 @@ package com.examSystem.online_exam_system.controller;
 
 import com.examSystem.online_exam_system.config.SessionUtils;
 import com.examSystem.online_exam_system.model.Result;
+import com.examSystem.online_exam_system.model.Role;
 import com.examSystem.online_exam_system.model.User;
 import com.examSystem.online_exam_system.service.ExamService;
 import com.examSystem.online_exam_system.service.ResultService;
@@ -27,92 +28,118 @@ public class ExamHistoryController {
     @Autowired
     private ExamService examService;
 
-    // ---- STUDENT EXAM HISTORY ----
-    // shows a student their own exam history with stats
+    // ---- STUDENT HISTORY ----
+    // students only see approved results
     @GetMapping("/student")
-    public String studentHistory(HttpSession session, Model model) {
+    public String studentHistory(HttpSession session,
+                                 Model model) {
         if (!SessionUtils.isLoggedIn(session)) {
             return "redirect:/users/login";
         }
         User loggedInUser = SessionUtils.getLoggedInUser(session);
-
-        // only students can access this page
         if (!loggedInUser.getRole().name().equals("STUDENT")) {
             return "redirect:/history/admin";
         }
 
-        List<Result> results = resultService.getResultsByStudent(loggedInUser);
-        long passCount = resultService.getPassCount(loggedInUser);
-        long failCount = resultService.getFailCount(loggedInUser);
-        int totalExams = results.size();
+        // students only see teacher-approved results
+        List<Result> results =
+                resultService.getApprovedResultsByStudent(loggedInUser);
 
-        // calculate average percentage if student has taken exams
+        return buildHistoryModel(
+                model, loggedInUser, results, null);
+    }
+
+    // ---- TEACHER/ADMIN HISTORY OVERVIEW ----
+    @GetMapping("/admin")
+    public String adminHistory(HttpSession session,
+                               Model model) {
+        if (!SessionUtils.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+        User loggedInUser = SessionUtils.getLoggedInUser(session);
+        if (loggedInUser.getRole().name().equals("STUDENT")) {
+            return "redirect:/history/student";
+        }
+        model.addAttribute("exams",
+                examService.getAllExams());
+        model.addAttribute("loggedInUser", loggedInUser);
+        if (loggedInUser.getRole().name().equals("ADMIN")) {
+            model.addAttribute("students",
+                    userService.getUsersByRole(Role.STUDENT));
+        }
+        return "history/admin";
+    }
+
+    // ---- VIEW SPECIFIC STUDENT HISTORY (admin) ----
+    @GetMapping("/student/{studentId}")
+    public String viewStudentHistory(
+            @PathVariable Long studentId,
+            HttpSession session,
+            Model model) {
+        if (!SessionUtils.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+        if (!SessionUtils.isAdmin(session)) {
+            model.addAttribute("error",
+                    "Access denied! Admins only.");
+            return "users/accessdenied";
+        }
+
+        User student = userService.getUserById(studentId);
+        // admin can see all results for this student
+        // including unapproved ones
+        List<Result> results =
+                resultService.getResultsByStudent(student);
+
+        return buildHistoryModel(
+                model, SessionUtils.getLoggedInUser(session),
+                results, student);
+    }
+
+    // ---- SHARED HELPER ----
+    // builds model attributes for history pages
+    // handles null lists and zero-division safely
+    private String buildHistoryModel(Model model,
+                                     User loggedInUser,
+                                     List<Result> results,
+                                     User student) {
+        int totalExams = results == null ? 0 : results.size();
+
+        long passCount = 0;
+        long failCount = 0;
         double avgPercentage = 0;
-        if (totalExams > 0) {
+
+        if (results != null && !results.isEmpty()) {
+            passCount = results.stream()
+                    .filter(r -> r.getPassed() != null &&
+                            r.getPassed())
+                    .count();
+            failCount = results.stream()
+                    .filter(r -> r.getPassed() != null &&
+                            !r.getPassed())
+                    .count();
             avgPercentage = results.stream()
+                    .filter(r -> r.getPercentage() != null)
                     .mapToDouble(Result::getPercentage)
                     .average()
                     .orElse(0);
-            avgPercentage = Math.round(avgPercentage * 10.0) / 10.0;
+            avgPercentage =
+                    Math.round(avgPercentage * 10.0) / 10.0;
         }
 
-        model.addAttribute("results", results);
+        model.addAttribute("results",
+                results != null ? results : List.of());
         model.addAttribute("loggedInUser", loggedInUser);
         model.addAttribute("passCount", passCount);
         model.addAttribute("failCount", failCount);
         model.addAttribute("totalExams", totalExams);
         model.addAttribute("avgPercentage", avgPercentage);
-        return "history/student";
-    }
 
-    // ---- ADMIN/TEACHER HISTORY VIEW ----
-    // shows all students' results across all exams
-    @GetMapping("/admin")
-    public String adminHistory(HttpSession session, Model model) {
-        if (!SessionUtils.isLoggedIn(session)) {
-            return "redirect:/users/login";
-        }
-        User loggedInUser = SessionUtils.getLoggedInUser(session);
-
-        // students cannot access this page
-        if (loggedInUser.getRole().name().equals("STUDENT")) {
-            return "redirect:/history/student";
+        // student attribute for admin viewing another student
+        if (student != null) {
+            model.addAttribute("student", student);
         }
 
-        // get all exams and all results
-        model.addAttribute("exams", examService.getAllExams());
-        model.addAttribute("loggedInUser", loggedInUser);
-
-        // if admin, also show all students
-        if (loggedInUser.getRole().name().equals("ADMIN")) {
-            List<User> students = userService.getUsersByRole(
-                    com.examSystem.online_exam_system.model.Role.STUDENT
-            );
-            model.addAttribute("students", students);
-        }
-
-        return "history/admin";
-    }
-
-    // ---- VIEW SPECIFIC STUDENT'S HISTORY (admin only) ----
-    @GetMapping("/student/{studentId}")
-    public String viewStudentHistory(@PathVariable Long studentId,
-                                     HttpSession session,
-                                     Model model) {
-        if (!SessionUtils.isAdmin(session)) {
-            model.addAttribute("error", "Access denied! Admins only.");
-            return "users/accessdenied";
-        }
-        User student = userService.getUserById(studentId);
-        List<Result> results = resultService.getResultsByStudent(student);
-        long passCount = resultService.getPassCount(student);
-        long failCount = resultService.getFailCount(student);
-
-        model.addAttribute("results", results);
-        model.addAttribute("student", student);
-        model.addAttribute("passCount", passCount);
-        model.addAttribute("failCount", failCount);
-        model.addAttribute("loggedInUser", SessionUtils.getLoggedInUser(session));
         return "history/student";
     }
 }
