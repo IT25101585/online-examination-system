@@ -186,4 +186,3 @@ public class ResultController {
         return "results/pending";
     }
 }
-
