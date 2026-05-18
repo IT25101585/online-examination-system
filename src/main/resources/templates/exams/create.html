@@ -2,44 +2,180 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
-<head><title>Create Module</title></head>
+<head><title>Create Exam</title></head>
 <body>
 <div layout:fragment="content">
     <div class="page-header mb-3">
-        <h2 class="page-title">Create Module</h2>
+        <h2 class="page-title">Create New Exam</h2>
     </div>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-9">
             <div class="card">
                 <div class="card-body">
-                    <form th:action="@{/modules/create}"
-                          th:object="${module}" method="post">
+                    <form th:action="@{/exams/create}"
+                          th:object="${exam}" method="post">
+
                         <div class="mb-3">
-                            <label class="form-label">Module Name</label>
-                            <input type="text" th:field="*{name}"
-                                   class="form-control" required
-                                   placeholder="e.g. Object Oriented Programming"/>
-                            <div th:if="${#fields.hasErrors('name')}"
+                            <label class="form-label">Title</label>
+                            <input type="text" th:field="*{title}"
+                                   class="form-control"
+                                   placeholder="Exam title" required/>
+                            <div th:if="${#fields.hasErrors('title')}"
                                  class="invalid-feedback d-block"
-                                 th:errors="*{name}"></div>
+                                 th:errors="*{title}"></div>
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label">
-                                Description (optional)
-                            </label>
+                            <label class="form-label">Description</label>
                             <textarea th:field="*{description}"
                                       class="form-control" rows="3"
-                                      placeholder="Describe this module...">
+                                      placeholder="Describe the exam...">
                             </textarea>
                         </div>
-                        <div th:if="${error}"
-                             class="alert alert-danger mb-3"
-                             th:text="${error}"></div>
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                Create Module
+
+                        <div class="mb-3">
+                            <label class="form-label">Module</label>
+                            <select name="moduleId" class="form-select">
+                                <option value="">-- No Module --</option>
+                                <option th:each="m : ${modules}"
+                                        th:value="${m.id}"
+                                        th:text="${m.name}"></option>
+                            </select>
+                            <div class="form-hint">
+                                Questions are picked from this module's
+                                bank when a session is created.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Duration (minutes)
+                            </label>
+                            <input type="number"
+                                   th:field="*{durationMins}"
+                                   class="form-control"
+                                   min="1" required
+                                   placeholder="e.g. 60"/>
+                        </div>
+
+                        <hr/>
+                        <h4 class="mb-1">
+                            Question Selection &amp; Marks
+                        </h4>
+                        <p class="text-muted small mb-3">
+                            Enter the number of questions and marks per
+                            question for each type. Decimals are allowed
+                            (e.g. 0.5). Total marks updates live.
+                        </p>
+
+                        <table class="table table-bordered mb-2">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Type</th>
+                                <th>Count</th>
+                                <th>Marks Each</th>
+                                <th>Subtotal</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="align-middle">
+                                        <span class="badge bg-blue-lt">
+                                            MCQ
+                                        </span>
+                                </td>
+                                <td>
+                                    <input type="number"
+                                           name="mcqCount"
+                                           id="mcqCount"
+                                           class="form-control"
+                                           min="0" step="1"
+                                           value="0"/>
+                                </td>
+                                <td>
+                                    <input type="number"
+                                           name="mcqMarksEach"
+                                           id="mcqMarks"
+                                           class="form-control"
+                                           min="0" step="0.5"
+                                           value="1"/>
+                                </td>
+                                <td class="align-middle fw-bold"
+                                    id="mcqSubtotal">0</td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle">
+                                        <span class="badge bg-green-lt">
+                                            True/False
+                                        </span>
+                                </td>
+                                <td>
+                                    <input type="number"
+                                           name="trueFalseCount"
+                                           id="tfCount"
+                                           class="form-control"
+                                           min="0" step="1"
+                                           value="0"/>
+                                </td>
+                                <td>
+                                    <input type="number"
+                                           name="tfMarksEach"
+                                           id="tfMarks"
+                                           class="form-control"
+                                           min="0" step="0.5"
+                                           value="1"/>
+                                </td>
+                                <td class="align-middle fw-bold"
+                                    id="tfSubtotal">0</td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle">
+                                        <span class="badge bg-purple-lt">
+                                            Short Answer
+                                        </span>
+                                </td>
+                                <td>
+                                    <input type="number"
+                                           name="shortAnswerCount"
+                                           id="saCount"
+                                           class="form-control"
+                                           min="0" step="1"
+                                           value="0"/>
+                                </td>
+                                <td>
+                                    <input type="number"
+                                           name="saMarksEach"
+                                           id="saMarks"
+                                           class="form-control"
+                                           min="0" step="0.5"
+                                           value="2"/>
+                                </td>
+                                <td class="align-middle fw-bold"
+                                    id="saSubtotal">0</td>
+                            </tr>
+                            <tr class="table-light">
+                                <td colspan="3"
+                                    class="text-end fw-bold pe-3">
+                                    Total Marks
+                                </td>
+                                <td class="fw-bold text-primary fs-4"
+                                    id="grandTotal">0</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- hidden field submitted to server -->
+                        <input type="hidden"
+                               id="totalMarksHidden"
+                               name="totalMarks"
+                               value="0"/>
+
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Create Exam
                             </button>
-                            <a href="/modules"
+                            <a href="/exams"
                                class="btn btn-outline-secondary">
                                 Cancel
                             </a>
