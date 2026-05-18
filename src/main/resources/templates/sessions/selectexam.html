@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Sessions</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">Exam Sessions</h2>
+        <p class="text-muted">
+            Select an exam to view or create sessions.
+        </p>
+    </div>
+
+    <div th:if="${#lists.isEmpty(exams)}" class="empty">
+        <p class="empty-title">No Exams Found</p>
+        <p class="empty-subtitle text-muted">
+            Create an exam first before adding sessions.
+        </p>
+    </div>
+
+    <div class="card" th:unless="${#lists.isEmpty(exams)}">
+        <div class="card-body p-0">
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>Exam Title</th>
+                    <th>Module</th>
+                    <th>Status</th>
+                    <th>Duration</th>
+                    <th>Sessions</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="examItem : ${exams}">
+                    <td th:text="${examItem.title}"></td>
+                    <td>
+                            <span class="badge bg-azure-lt"
+                                  th:if="${examItem.module != null}"
+                                  th:text="${examItem.module.name}">
+                            </span>
+                        <span class="text-muted small"
+                              th:if="${examItem.module == null}">
+                                None
+                            </span>
+                    </td>
+                    <td>
+                            <span class="badge bg-success-lt"
+                                  th:if="${examItem.status.name()
+                                      == 'PUBLISHED'}">Published</span>
+                        <span class="badge bg-secondary-lt"
+                              th:if="${examItem.status.name()
+                                      == 'DRAFT'}">Draft</span>
+                        <span class="badge bg-warning-lt"
+                              th:if="${examItem.status.name()
+                                      == 'PENDING'}">Pending</span>
+                        <span class="badge bg-danger-lt"
+                              th:if="${examItem.status.name()
+                                      == 'REJECTED'}">Rejected</span>
+                    </td>
+                    <td th:text="${examItem.durationMins}
+                            + ' mins'"></td>
+                    <td th:text="${examSessionCounts.get(
+                            examItem.id)}"></td>
+                    <td>
+                        <a th:href="@{/sessions/exam/{id}
+                                (id=${examItem.id})}"
+                           class="btn btn-sm
+                                      btn-outline-secondary me-1">
+                            View
+                        </a>
+                        <a th:href="@{/sessions/create/{id}
+                                (id=${examItem.id})}"
+                           class="btn btn-sm btn-primary">
+                            + Session
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

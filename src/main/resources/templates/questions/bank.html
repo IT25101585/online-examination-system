@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Question Bank</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">Question Bank</h2>
+    </div>
+    <p class="text-muted mb-3">
+        Questions are organised by module. Select a module to view
+        or add questions.
+    </p>
+
+    <div th:if="${#lists.isEmpty(modules)}" class="empty">
+        <p class="empty-title">No Modules Yet</p>
+        <p class="empty-subtitle text-muted">
+            Ask your admin to create modules first.
+        </p>
+    </div>
+
+    <div class="row row-cards" th:unless="${#lists.isEmpty(modules)}">
+        <div class="col-md-6 col-lg-4"
+             th:each="module : ${modules}">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title"
+                        th:text="${module.name}"></h3>
+                    <p class="text-muted small"
+                       th:text="${module.description != null ?
+                           module.description : 'No description'}">
+                    </p>
+                    <div class="row text-center mt-3">
+                        <div class="col-4">
+                            <div class="h3 mb-0"
+                                 th:text="${mcqCounts.get(module.id)}">
+                            </div>
+                            <div class="text-muted small">MCQ</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="h3 mb-0"
+                                 th:text="${tfCounts.get(module.id)}">
+                            </div>
+                            <div class="text-muted small">T/F</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="h3 mb-0"
+                                 th:text="${saCounts.get(module.id)}">
+                            </div>
+                            <div class="text-muted small">Short</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex gap-2">
+                    <a th:href="@{/questions/module/{id}
+                        (id=${module.id})}"
+                       class="btn btn-outline-secondary btn-sm">
+                        View Questions
+                    </a>
+                    <a th:href="@{/questions/create/{id}
+                        (id=${module.id})}"
+                       class="btn btn-primary btn-sm">
+                        + Add Question
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

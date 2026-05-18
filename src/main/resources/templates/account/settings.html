@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Account Settings</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">Account Settings</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title">Personal Information</h3>
+                </div>
+                <div class="card-body">
+                    <div th:if="${success}"
+                         class="alert alert-success mb-3"
+                         th:text="${success}"></div>
+                    <div th:if="${error}"
+                         class="alert alert-danger mb-3"
+                         th:text="${error}"></div>
+                    <form th:action="@{/account/settings}"
+                          th:object="${user}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" th:field="*{name}"
+                                   class="form-control" required/>
+                            <div th:if="${#fields.hasErrors('name')}"
+                                 class="invalid-feedback d-block"
+                                 th:errors="*{name}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" th:field="*{email}"
+                                   class="form-control" required/>
+                            <div th:if="${#fields.hasErrors('email')}"
+                                 class="invalid-feedback d-block"
+                                 th:errors="*{email}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <input type="text" class="form-control"
+                                   th:value="${user.role}" disabled/>
+                            <input type="hidden" th:field="*{password}"/>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Security</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">
+                        Change your password to keep your account secure.
+                    </p>
+                    <a href="/account/changepassword"
+                       class="btn btn-outline-primary">
+                        Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

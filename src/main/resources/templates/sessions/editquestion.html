@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Edit Session Question</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">Edit Session Question</h2>
+        <p class="text-muted">
+            Changes only affect this session, not the question bank.
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/sessions/question/edit/{id}
+                              (id=${question.id})}"
+                          th:object="${question}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Question Text</label>
+                            <textarea th:field="*{questionText}"
+                                      class="form-control"
+                                      rows="3" required></textarea>
+                        </div>
+                        <div th:if="${question.questionType.name()
+                            == 'MCQ'}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option A</label>
+                                    <input type="text"
+                                           th:field="*{optionA}"
+                                           class="form-control"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option B</label>
+                                    <input type="text"
+                                           th:field="*{optionB}"
+                                           class="form-control"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option C</label>
+                                    <input type="text"
+                                           th:field="*{optionC}"
+                                           class="form-control"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option D</label>
+                                    <input type="text"
+                                           th:field="*{optionD}"
+                                           class="form-control"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correct Answer</label>
+                            <input type="text"
+                                   th:field="*{correctAnswer}"
+                                   class="form-control" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Marks</label>
+                            <input type="number" th:field="*{marks}"
+                                   class="form-control"
+                                   min="1" required/>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                Save Changes
+                            </button>
+                            <a th:href="@{/sessions/preview/{id}
+                                (id=${question.session.id})}"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

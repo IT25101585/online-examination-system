@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/auth}">
+<head><title>Login</title></head>
+<!--<body class = "auth-page">-->
+<div layout:fragment="content">
+    <div class="container container-tight py-4">
+        <!--        <div class="text-center mb-4">-->
+        <!--            <h1>📝 Exam System</h1>-->
+        <!--        </div>-->
+        <div class="card card-md">
+            <div class="card-body">
+                <!--                <h1 class="text-center mb-4">Online Exam System</h1>-->
+                <h2 class="h2 text-center mb-4">Sign in to your account</h2>
+                <form th:action="@{/users/login}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Email address</label>
+                        <input type="email" name="email"
+                               class="form-control"
+                               placeholder="you@example.com" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password"
+                               class="form-control"
+                               placeholder="Your Password" required/>
+                    </div>
+                    <div th:if="${error}"
+                         class="alert alert-danger mb-3"
+                         th:text="${error}"></div>
+                    <div class="form-footer">
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Sign in
+                        </button>
+                    </div>
+                    <div class="text-center text-muted mt-3">
+                        Don't have an account?
+                        <a href="/users/register">Register here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

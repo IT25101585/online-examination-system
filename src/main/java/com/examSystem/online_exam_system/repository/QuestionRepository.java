@@ -1,8 +1,7 @@
 package com.examSystem.online_exam_system.repository;
 
-import com.examSystem.online_exam_system.model.Exam;
-import com.examSystem.online_exam_system.model.Question;
-import com.examSystem.online_exam_system.model.QuestionType;
+import com.examSystem.online_exam_system.model.*;
+import com.examSystem.online_exam_system.model.Module;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,13 +10,18 @@ import java.util.List;
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
-    // gets all questions belonging to a specific exam
-    List<Question> findByExam(Exam exam);
+    // get all questions for a module
+    List<Question> findByModule(Module module);
 
-    // gets all questions of a specific type in an exam
-    // e.g. all MCQ questions in exam 1
-    List<Question> findByExamAndQuestionType(Exam exam, QuestionType questionType);
+    // get questions by module and type
+    // used when randomly selecting questions for a session
+    List<Question> findByModuleAndQuestionType(
+            Module module, QuestionType questionType);
 
-    // counts how many questions an exam has
-    long countByExam(Exam exam);
+    // count questions in a module
+    long countByModule(Module module);
+
+    // count by module and type
+    long countByModuleAndQuestionType(Module module,
+                                      QuestionType questionType);
 }
