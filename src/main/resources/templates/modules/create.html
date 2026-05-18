@@ -2,30 +2,35 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
-<head><title>Edit Exam</title></head>
+<head><title>Create Exam</title></head>
 <body>
 <div layout:fragment="content">
     <div class="page-header mb-3">
-        <h2 class="page-title">Edit Exam</h2>
+        <h2 class="page-title">Create New Exam</h2>
     </div>
     <div class="row">
         <div class="col-md-9">
             <div class="card">
                 <div class="card-body">
-                    <form th:action="@{/exams/edit/{id}(id=${exam.id})}"
+                    <form th:action="@{/exams/create}"
                           th:object="${exam}" method="post">
 
                         <div class="mb-3">
                             <label class="form-label">Title</label>
                             <input type="text" th:field="*{title}"
-                                   class="form-control" required/>
+                                   class="form-control"
+                                   placeholder="Exam title" required/>
+                            <div th:if="${#fields.hasErrors('title')}"
+                                 class="invalid-feedback d-block"
+                                 th:errors="*{title}"></div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Description</label>
                             <textarea th:field="*{description}"
-                                      class="form-control"
-                                      rows="3"></textarea>
+                                      class="form-control" rows="3"
+                                      placeholder="Describe the exam...">
+                            </textarea>
                         </div>
 
                         <div class="mb-3">
@@ -34,11 +39,12 @@
                                 <option value="">-- No Module --</option>
                                 <option th:each="m : ${modules}"
                                         th:value="${m.id}"
-                                        th:text="${m.name}"
-                                        th:selected="${exam.module != null
-                                            and exam.module.id == m.id}">
-                                </option>
+                                        th:text="${m.name}"></option>
                             </select>
+                            <div class="form-hint">
+                                Questions are picked from this module's
+                                bank when a session is created.
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -48,7 +54,8 @@
                             <input type="number"
                                    th:field="*{durationMins}"
                                    class="form-control"
-                                   min="1" required/>
+                                   min="1" required
+                                   placeholder="e.g. 60"/>
                         </div>
 
                         <hr/>
@@ -56,8 +63,9 @@
                             Question Selection &amp; Marks
                         </h4>
                         <p class="text-muted small mb-3">
-                            Adjust counts and marks per question.
-                            Decimals allowed. Total updates live.
+                            Enter the number of questions and marks per
+                            question for each type. Decimals are allowed
+                            (e.g. 0.5). Total marks updates live.
                         </p>
 
                         <table class="table table-bordered mb-2">
@@ -82,9 +90,7 @@
                                            id="mcqCount"
                                            class="form-control"
                                            min="0" step="1"
-                                           th:value="${exam.mcqCount
-                                                   != null ?
-                                                   exam.mcqCount : 0}"/>
+                                           value="0"/>
                                 </td>
                                 <td>
                                     <input type="number"
@@ -92,13 +98,10 @@
                                            id="mcqMarks"
                                            class="form-control"
                                            min="0" step="0.5"
-                                           th:value="${exam.mcqMarksEach
-                                                   != null ?
-                                                   exam.mcqMarksEach
-                                                   : 1}"/>
+                                           value="1"/>
                                 </td>
                                 <td class="align-middle fw-bold"
-                                    id="mcqSubtotal">—</td>
+                                    id="mcqSubtotal">0</td>
                             </tr>
                             <tr>
                                 <td class="align-middle">
@@ -112,10 +115,7 @@
                                            id="tfCount"
                                            class="form-control"
                                            min="0" step="1"
-                                           th:value="${exam.trueFalseCount
-                                                   != null ?
-                                                   exam.trueFalseCount
-                                                   : 0}"/>
+                                           value="0"/>
                                 </td>
                                 <td>
                                     <input type="number"
@@ -123,13 +123,10 @@
                                            id="tfMarks"
                                            class="form-control"
                                            min="0" step="0.5"
-                                           th:value="${exam.tfMarksEach
-                                                   != null ?
-                                                   exam.tfMarksEach
-                                                   : 1}"/>
+                                           value="1"/>
                                 </td>
                                 <td class="align-middle fw-bold"
-                                    id="tfSubtotal">—</td>
+                                    id="tfSubtotal">0</td>
                             </tr>
                             <tr>
                                 <td class="align-middle">
@@ -143,10 +140,7 @@
                                            id="saCount"
                                            class="form-control"
                                            min="0" step="1"
-                                           th:value="${exam.shortAnswerCount
-                                                   != null ?
-                                                   exam.shortAnswerCount
-                                                   : 0}"/>
+                                           value="0"/>
                                 </td>
                                 <td>
                                     <input type="number"
@@ -154,13 +148,10 @@
                                            id="saMarks"
                                            class="form-control"
                                            min="0" step="0.5"
-                                           th:value="${exam.saMarksEach
-                                                   != null ?
-                                                   exam.saMarksEach
-                                                   : 2}"/>
+                                           value="2"/>
                                 </td>
                                 <td class="align-middle fw-bold"
-                                    id="saSubtotal">—</td>
+                                    id="saSubtotal">0</td>
                             </tr>
                             <tr class="table-light">
                                 <td colspan="3"
@@ -168,22 +159,21 @@
                                     Total Marks
                                 </td>
                                 <td class="fw-bold text-primary fs-4"
-                                    id="grandTotal"
-                                    th:text="${exam.totalMarks}">
-                                </td>
+                                    id="grandTotal">0</td>
                             </tr>
                             </tbody>
                         </table>
 
+                        <!-- hidden field submitted to server -->
                         <input type="hidden"
                                id="totalMarksHidden"
                                name="totalMarks"
-                               th:value="${exam.totalMarks}"/>
+                               value="0"/>
 
                         <div class="d-flex gap-2 mt-3">
                             <button type="submit"
                                     class="btn btn-primary">
-                                Save Changes
+                                Create Exam
                             </button>
                             <a href="/exams"
                                class="btn btn-outline-secondary">
