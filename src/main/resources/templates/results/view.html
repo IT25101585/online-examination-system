@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Result</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body py-5">
+                    <h2 th:text="${result.exam.title}"></h2>
+                    <p class="text-muted">
+                        Student:
+                        <strong th:text="${result.student.name}">
+                        </strong>
+                    </p>
+                    <div class="display-4 fw-bold text-success my-3"
+                         th:text="${result.totalScore} + '/' +
+                             ${result.totalMarks}"></div>
+                    <div class="h3 mb-2"
+                         th:text="${result.grade}"></div>
+                    <p class="text-muted">
+                        <strong th:text="${result.percentage} + '%'">
+                        </strong>
+                    </p>
+                    <div th:if="${result.passed}"
+                         class="alert alert-success">✅ PASSED!</div>
+                    <div th:unless="${result.passed}"
+                         class="alert alert-danger">❌ FAILED</div>
+                    <div th:if="${result.teacherNote}"
+                         class="alert alert-info text-start mt-3">
+                        <strong>Teacher's Note:</strong>
+                        <p class="mb-0 mt-1"
+                           th:text="${result.teacherNote}"></p>
+                    </div>
+                    <p class="text-muted small mt-3"
+                       th:text="'Approved: ' + ${result.approvedAt}">
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center
+                                mt-3">
+                        <a href="/results/history"
+                           class="btn btn-primary">My History</a>
+                        <a href="/dashboard"
+                           class="btn btn-outline-secondary">
+                            Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
