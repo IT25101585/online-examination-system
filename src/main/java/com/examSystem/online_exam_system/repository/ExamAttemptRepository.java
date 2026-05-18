@@ -18,9 +18,11 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
     // gets all attempts for a specific exam
     List<ExamAttempt> findByExam(Exam exam);
 
-    // gets a specific student's attempt for a specific exam
-    Optional<ExamAttempt> findByStudentAndExam(User student, Exam exam);
+    // in ExamAttemptRepository.java — add this method
+    Optional<ExamAttempt> findByStudentAndExamAndExamSessionId(
+            User student, Exam exam, Long examSessionId);
 
-    // checks if a student has already attempted an exam
-    boolean existsByStudentAndExam(User student, Exam exam);
+    boolean existsByStudentAndExamAndExamSessionId(
+            User student, Exam exam, Long examSessionId);
 }
+

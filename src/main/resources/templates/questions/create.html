@@ -1,76 +1,113 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Add Question</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Add Question</title></head>
 <body>
-
-<h2>Add Question to: <span th:text="${exam.title}"></span></h2>
-
-<form th:action="@{/questions/create/{examId}(examId=${examId})}"
-      th:object="${question}" method="post">
-
-    <label>Question Text:</label>
-    <textarea th:field="*{questionText}" rows="3" cols="50" required></textarea>
-    <span th:if="${#fields.hasErrors('questionText')}"
-          th:errors="*{questionText}" style="color:red"></span>
-    <br/><br/>
-
-    <label>Question Type:</label>
-    <select th:field="*{questionType}" id="questionType" onchange="toggleOptions()">
-        <option th:each="type : ${questionTypes}"
-                th:value="${type}"
-                th:text="${type}">
-        </option>
-    </select>
-    <span th:if="${#fields.hasErrors('questionType')}"
-          th:errors="*{questionType}" style="color:red"></span>
-    <br/><br/>
-
-    <!-- MCQ options — only shown when MCQ is selected -->
-    <div id="mcqOptions">
-        <label>Option A:</label>
-        <input type="text" th:field="*{optionA}"/><br/><br/>
-
-        <label>Option B:</label>
-        <input type="text" th:field="*{optionB}"/><br/><br/>
-
-        <label>Option C:</label>
-        <input type="text" th:field="*{optionC}"/><br/><br/>
-
-        <label>Option D:</label>
-        <input type="text" th:field="*{optionD}"/><br/><br/>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">Add Question</h2>
+        <p class="text-muted">
+            Module: <strong th:text="${module.name}"></strong>
+        </p>
     </div>
-
-    <label>Correct Answer:</label>
-    <input type="text" th:field="*{correctAnswer}" required
-           placeholder="For MCQ: A/B/C/D | For True/False: TRUE or FALSE"/>
-    <span th:if="${#fields.hasErrors('correctAnswer')}"
-          th:errors="*{correctAnswer}" style="color:red"></span>
-    <br/><br/>
-
-    <label>Marks:</label>
-    <input type="number" th:field="*{marks}" min="1" required/>
-    <span th:if="${#fields.hasErrors('marks')}"
-          th:errors="*{marks}" style="color:red"></span>
-    <br/><br/>
-
-    <button type="submit">Add Question</button>
-</form>
-
-<br/>
-<a th:href="@{/questions/exam/{examId}(examId=${examId})}">Back to Questions</a>
-
-<script>
-    // shows or hides MCQ options based on question type selected
-    function toggleOptions() {
-        var type = document.getElementById('questionType').value;
-        var mcqDiv = document.getElementById('mcqOptions');
-        mcqDiv.style.display = (type === 'MCQ') ? 'block' : 'none';
-    }
-    // run on page load to set initial state
-    toggleOptions();
-</script>
-
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/questions/create/{moduleId}
+                              (moduleId=${moduleId})}"
+                          th:object="${question}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Question Type</label>
+                            <select th:field="*{questionType}"
+                                    id="questionType"
+                                    class="form-select"
+                                    onchange="toggleOptions()">
+                                <option th:each="type : ${questionTypes}"
+                                        th:value="${type}"
+                                        th:text="${type}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Question Text</label>
+                            <textarea th:field="*{questionText}"
+                                      class="form-control" rows="3"
+                                      required
+                                      placeholder="Enter your question...">
+                            </textarea>
+                            <div th:if="${#fields.hasErrors(
+                                    'questionText')}"
+                                 class="invalid-feedback d-block"
+                                 th:errors="*{questionText}"></div>
+                        </div>
+                        <div id="mcqOptions">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option A</label>
+                                    <input type="text"
+                                           th:field="*{optionA}"
+                                           class="form-control"
+                                           placeholder="Option A"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option B</label>
+                                    <input type="text"
+                                           th:field="*{optionB}"
+                                           class="form-control"
+                                           placeholder="Option B"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option C</label>
+                                    <input type="text"
+                                           th:field="*{optionC}"
+                                           class="form-control"
+                                           placeholder="Option C"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option D</label>
+                                    <input type="text"
+                                           th:field="*{optionD}"
+                                           class="form-control"
+                                           placeholder="Option D"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correct Answer</label>
+                            <input type="text"
+                                   th:field="*{correctAnswer}"
+                                   class="form-control" required
+                                   placeholder="MCQ: A/B/C/D | T/F: TRUE or FALSE"/>
+                            <div th:if="${#fields.hasErrors(
+                                    'correctAnswer')}"
+                                 class="invalid-feedback d-block"
+                                 th:errors="*{correctAnswer}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Marks</label>
+                            <input type="number" th:field="*{marks}"
+                                   class="form-control"
+                                   min="1" required placeholder="5"/>
+                            <div th:if="${#fields.hasErrors('marks')}"
+                                 class="invalid-feedback d-block"
+                                 th:errors="*{marks}"></div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                Add to Question Bank
+                            </button>
+                            <a th:href="@{/questions/module/{id}
+                                (id=${moduleId})}"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

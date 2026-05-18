@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
-// @Entity tells Spring Boot this class maps to a database table
 @Entity
 @Table(name = "exams")
 public class Exam {
@@ -13,36 +12,42 @@ public class Exam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // exam must have a title of at least 3 characters
     @NotBlank(message = "Title is required")
     @Size(min = 3, message = "Title must be at least 3 characters")
     @Column(nullable = false)
     private String title;
 
-    // description is optional but can't be blank if provided
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // duration in minutes — must be at least 1 minute
+    @ManyToOne
+    @JoinColumn(name = "module_id")
+    private Module module;
+
     @NotNull(message = "Duration is required")
     @Min(value = 1, message = "Duration must be at least 1 minute")
     @Column(nullable = false)
     private Integer durationMins;
 
-    // total marks — must be at least 1
     @NotNull(message = "Total marks is required")
     @Min(value = 1, message = "Total marks must be at least 1")
     @Column(nullable = false)
-    private Integer totalMarks;
+    private Double totalMarks;
 
-    // status is either DRAFT or PUBLISHED
-    // defaults to DRAFT when first created
+    // how many of each question type to pick randomly
+    @Column(name = "mcq_count")
+    private Integer mcqCount = 0;
+
+    @Column(name = "true_false_count")
+    private Integer trueFalseCount = 0;
+
+    @Column(name = "short_answer_count")
+    private Integer shortAnswerCount = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ExamStatus status = ExamStatus.DRAFT;
 
-    // the user who created this exam
-    // ManyToOne means many exams can belong to one user
     @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
@@ -50,13 +55,28 @@ public class Exam {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    // automatically sets createdAt when exam is first saved
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
+    // marks per question type — stored so total can be recalculated
+    @Column(name = "mcq_marks_each")
+    private Double mcqMarksEach = 1.0;
+
+    @Column(name = "tf_marks_each")
+    private Double tfMarksEach = 1.0;
+
+    @Column(name = "sa_marks_each")
+    private Double saMarksEach = 2.0;
+
+    // total question count
+    public int getTotalQuestionCount() {
+        return (mcqCount == null ? 0 : mcqCount) +
+                (trueFalseCount == null ? 0 : trueFalseCount) +
+                (shortAnswerCount == null ? 0 : shortAnswerCount);
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -66,11 +86,27 @@ public class Exam {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
+    public Module getModule() { return module; }
+    public void setModule(Module module) { this.module = module; }
+
     public Integer getDurationMins() { return durationMins; }
     public void setDurationMins(Integer durationMins) { this.durationMins = durationMins; }
 
     public Double getTotalMarks() { return totalMarks; }
-    public void setTotalMarks(Integer totalMarks) { this.totalMarks = totalMarks; }
+    public void setTotalMarks(Double totalMarks) { this.totalMarks = totalMarks; }
+
+    public Integer getMcqCount() { return mcqCount; }
+    public void setMcqCount(Integer mcqCount) { this.mcqCount = mcqCount; }
+
+    public Integer getTrueFalseCount() { return trueFalseCount; }
+    public void setTrueFalseCount(Integer trueFalseCount) {
+        this.trueFalseCount = trueFalseCount;
+    }
+
+    public Integer getShortAnswerCount() { return shortAnswerCount; }
+    public void setShortAnswerCount(Integer shortAnswerCount) {
+        this.shortAnswerCount = shortAnswerCount;
+    }
 
     public ExamStatus getStatus() { return status; }
     public void setStatus(ExamStatus status) { this.status = status; }
@@ -80,4 +116,19 @@ public class Exam {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public Double getMcqMarksEach() { return mcqMarksEach; }
+    public void setMcqMarksEach(Double mcqMarksEach) {
+        this.mcqMarksEach = mcqMarksEach;
+    }
+
+    public Double getTfMarksEach() { return tfMarksEach; }
+    public void setTfMarksEach(Double tfMarksEach) {
+        this.tfMarksEach = tfMarksEach;
+    }
+
+    public Double getSaMarksEach() { return saMarksEach; }
+    public void setSaMarksEach(Double saMarksEach) {
+        this.saMarksEach = saMarksEach;
+    }
 }

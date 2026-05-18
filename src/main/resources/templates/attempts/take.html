@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Taking Exam</title></head>
+<body>
+<div layout:fragment="content">
+
+  <div class="page-header mb-3">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title"
+            th:text="${exam.title}"></h2>
+      </div>
+      <div class="col-auto">
+        <div class="card p-2 text-center">
+          <div class="text-muted small">Time Remaining</div>
+          <div id="exam-timer"
+               class="h2 mb-0 text-green"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${error}"
+       class="alert alert-danger mb-3"
+       th:text="${error}"></div>
+
+  <div th:if="${questions == null or #lists.isEmpty(questions)}"
+       class="alert alert-warning">
+    No questions available for this session.
+  </div>
+
+  <form th:unless="${questions == null or
+              #lists.isEmpty(questions)}"
+        id="exam-form"
+        th:action="@{/attempts/submit/{attemptId}
+              (attemptId=${attempt.id})}"
+        method="post">
+
+    <div th:each="q, iterStat : ${questions}"
+         class="card mb-3">
+      <div class="card-body">
+        <p class="mb-3">
+          <strong th:text="${iterStat.count} + '. ' +
+                        ${q.questionText}"></strong>
+          <span class="badge bg-azure-lt ms-2"
+                th:text="${q.questionType}"></span>
+          <span class="text-muted ms-2 small">
+                        (<span th:text="${q.marks}"></span> marks)
+                    </span>
+        </p>
+
+        <div th:if="${q.questionType.name() == 'MCQ'}">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio"
+                   th:name="'answer_' + ${q.id}"
+                   value="A"/>
+            <label class="form-check-label">
+              A: <span th:text="${q.optionA}"></span>
+            </label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio"
+                   th:name="'answer_' + ${q.id}"
+                   value="B"/>
+            <label class="form-check-label">
+              B: <span th:text="${q.optionB}"></span>
+            </label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio"
+                   th:name="'answer_' + ${q.id}"
+                   value="C"/>
+            <label class="form-check-label">
+              C: <span th:text="${q.optionC}"></span>
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio"
+                   th:name="'answer_' + ${q.id}"
+                   value="D"/>
+            <label class="form-check-label">
+              D: <span th:text="${q.optionD}"></span>
+            </label>
+          </div>
+        </div>
+
+        <div th:if="${q.questionType.name() == 'TRUE_FALSE'}">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio"
+                   th:name="'answer_' + ${q.id}"
+                   value="TRUE"/>
+            <label class="form-check-label">True</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio"
+                   th:name="'answer_' + ${q.id}"
+                   value="FALSE"/>
+            <label class="form-check-label">False</label>
+          </div>
+        </div>
+
+        <div th:if="${q.questionType.name()
+                    == 'SHORT_ANSWER'}">
+          <input type="text" class="form-control"
+                 th:name="'answer_' + ${q.id}"
+                 placeholder="Type your answer here"/>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit"
+            onclick="return confirm('Submit exam?')"
+            class="btn btn-success btn-lg w-100 mb-3">
+      Submit Exam
+    </button>
+  </form>
+
+  <script th:inline="javascript">
+    var duration = [[${exam.durationMins}]];
+    startTimer(duration);
+  </script>
+</div>
+</body>
+</html>
+

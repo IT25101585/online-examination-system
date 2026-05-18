@@ -1,28 +1,68 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Start Exam</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Start Exam</title></head>
 <body>
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="page-header mb-3">
+                <h2 class="page-title"
+                    th:text="${exam.title}"></h2>
+            </div>
 
-<h2>Ready to start?</h2>
+            <div th:if="${error}"
+                 class="alert alert-danger mb-3"
+                 th:text="${error}"></div>
 
-<h3 th:text="${exam.title}"></h3>
-<p>Description: <span th:text="${exam.description}"></span></p>
-<p>Duration: <span th:text="${exam.durationMins}"></span> minutes</p>
-<p>Total Marks: <span th:text="${exam.totalMarks}"></span></p>
-<p>Number of Questions: <span th:text="${questionCount}"></span></p>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title">Exam Details</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-5">Description</dt>
+                        <dd class="col-7"
+                            th:text="${exam.description}"></dd>
+                        <dt class="col-5">Duration</dt>
+                        <dd class="col-7"
+                            th:text="${exam.durationMins}
+                                + ' minutes'"></dd>
+                        <dt class="col-5">Total Marks</dt>
+                        <dd class="col-7"
+                            th:text="${exam.totalMarks}"></dd>
+                        <dt class="col-5">Questions</dt>
+                        <dd class="col-7"
+                            th:text="${questionCount}"></dd>
+                    </dl>
+                </div>
+            </div>
 
-<p style="color:red">Once you start, you cannot restart the exam!</p>
+            <div class="alert alert-warning mb-3"
+                 th:if="${activeSession != null}">
+                ⚠️ Once you start, you <strong>cannot restart</strong>
+                this exam!
+            </div>
 
-<p th:if="${error}" th:text="${error}" style="color:red"></p>
+            <form th:if="${activeSession != null}"
+                  th:action="@{/attempts/start/{examId}
+                      (examId=${exam.id})}" method="post">
+                <button type="submit"
+                        class="btn btn-success w-100 btn-lg">
+                    🚀 Start Exam
+                </button>
+            </form>
 
-<form th:action="@{/attempts/start/{examId}(examId=${exam.id})}" method="post">
-    <button type="submit">Start Exam</button>
-</form>
-
-<br/>
-<a href="/dashboard">Back to Dashboard</a>
-
+            <div class="mt-3">
+                <a href="/dashboard"
+                   class="btn btn-outline-secondary">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
+

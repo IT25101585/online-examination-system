@@ -1,32 +1,52 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Result</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Submitted</title></head>
 <body>
-
-<h2>Exam Result</h2>
-
-<h3 th:text="${exam.title}"></h3>
-
-<p>Status: <strong th:text="${attempt.status}"></strong></p>
-<p>Score: <strong th:text="${attempt.totalScore}"></strong>
-    out of <strong th:text="${exam.totalMarks}"></strong></p>
-<p>Percentage: <strong th:text="${percentage} + '%'"></strong></p>
-
-<!-- show pass or fail based on percentage -->
-<p th:if="${percentage >= 50}" style="color:green"><strong>PASSED!</strong></p>
-<p th:if="${percentage < 50}" style="color:red"><strong>FAILED!</strong></p>
-
-<p>Started at: <span th:text="${attempt.startedAt}"></span></p>
-<p>Submitted at: <span th:text="${attempt.submittedAt}"></span></p>
-
-<br/>
-<a th:href="@{/results/{id}(id=${attempt.id})}">View Full Result</a>
-<br/><br/>
-<a href="/results/history">My Exam History</a>
-<br/><br/>
-<a href="/dashboard">Back to Dashboard</a>
-
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body py-5">
+                    <div class="h1 mb-3"
+                         th:text="${exam.title}"></div>
+                    <p class="text-muted">
+                        Exam submitted successfully!
+                    </p>
+                    <div class="display-4 fw-bold text-success my-3"
+                         th:text="${attempt.totalScore} + '/' +
+                             ${exam.totalMarks}"></div>
+                    <p class="text-muted">
+                        <strong th:text="${percentage} + '%'"></strong>
+                    </p>
+                    <div th:if="${percentage >= 50}"
+                         class="alert alert-success">
+                        ✅ PASSED!
+                    </div>
+                    <div th:if="${percentage < 50}"
+                         class="alert alert-danger">
+                        ❌ FAILED
+                    </div>
+                    <p class="text-muted small mt-3">
+                        Your result is pending teacher review.
+                        You'll be notified once it's approved.
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center mt-3">
+                        <a href="/results/history"
+                           class="btn btn-primary">
+                            My Exam History
+                        </a>
+                        <a href="/dashboard"
+                           class="btn btn-outline-secondary">
+                            Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
+

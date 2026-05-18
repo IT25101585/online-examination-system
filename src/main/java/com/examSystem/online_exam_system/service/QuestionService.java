@@ -1,10 +1,8 @@
 package com.examSystem.online_exam_system.service;
 
-import com.examSystem.online_exam_system.model.Exam;
-import com.examSystem.online_exam_system.model.Question;
-import com.examSystem.online_exam_system.model.QuestionType;
-import com.examSystem.online_exam_system.repository.ExamRepository;
-import com.examSystem.online_exam_system.repository.QuestionRepository;
+import com.examSystem.online_exam_system.model.*;
+import com.examSystem.online_exam_system.model.Module;
+import com.examSystem.online_exam_system.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,22 +15,43 @@ public class QuestionService {
     private QuestionRepository questionRepository;
 
     @Autowired
-    private ExamRepository examRepository;
+    private ModuleRepository moduleRepository;
 
-    // ---- ADD QUESTION TO EXAM ----
-    public Question addQuestion(Question question, Long examId) {
-        // find the exam this question belongs to
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new RuntimeException("Exam not found!"));
-        question.setExam(exam);
+    // ---- ADD QUESTION TO MODULE ----
+    public Question addQuestion(Question question, Long moduleId) {
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new RuntimeException("Module not found!"));
+        question.setModule(module);
         return questionRepository.save(question);
     }
 
-    // ---- GET ALL QUESTIONS FOR AN EXAM ----
-    public List<Question> getQuestionsByExam(Long examId) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new RuntimeException("Exam not found!"));
-        return questionRepository.findByExam(exam);
+    // ---- GET ALL QUESTIONS FOR A MODULE ----
+    public List<Question> getQuestionsByModule(Long moduleId) {
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new RuntimeException("Module not found!"));
+        return questionRepository.findByModule(module);
+    }
+
+    // ---- GET QUESTIONS BY MODULE AND TYPE ----
+    public List<Question> getQuestionsByModuleAndType(
+            Long moduleId, QuestionType type) {
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new RuntimeException("Module not found!"));
+        return questionRepository.findByModuleAndQuestionType(module, type);
+    }
+
+    // ---- COUNT QUESTIONS IN MODULE ----
+    public long countQuestions(Long moduleId) {
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new RuntimeException("Module not found!"));
+        return questionRepository.countByModule(module);
+    }
+
+    // ---- COUNT BY MODULE AND TYPE ----
+    public long countByModuleAndType(Long moduleId, QuestionType type) {
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new RuntimeException("Module not found!"));
+        return questionRepository.countByModuleAndQuestionType(module, type);
     }
 
     // ---- GET QUESTION BY ID ----
@@ -41,31 +60,26 @@ public class QuestionService {
                 .orElseThrow(() -> new RuntimeException("Question not found!"));
     }
 
-    // ---- GET QUESTIONS BY TYPE ----
-    public List<Question> getQuestionsByType(Long examId, QuestionType type) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new RuntimeException("Exam not found!"));
-        return questionRepository.findByExamAndQuestionType(exam, type);
-    }
-
-    // ---- COUNT QUESTIONS IN EXAM ----
-    public long countQuestions(Long examId) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new RuntimeException("Exam not found!"));
-        return questionRepository.countByExam(exam);
-    }
-
     // ---- UPDATE QUESTION ----
-    public Question updateQuestion(Long id, Question updatedQuestion) {
+    public Question updateQuestion(Long id, Question updated,
+                                   Long moduleId) {
         Question existing = getQuestionById(id);
-        existing.setQuestionText(updatedQuestion.getQuestionText());
-        existing.setQuestionType(updatedQuestion.getQuestionType());
-        existing.setOptionA(updatedQuestion.getOptionA());
-        existing.setOptionB(updatedQuestion.getOptionB());
-        existing.setOptionC(updatedQuestion.getOptionC());
-        existing.setOptionD(updatedQuestion.getOptionD());
-        existing.setCorrectAnswer(updatedQuestion.getCorrectAnswer());
-        existing.setMarks(updatedQuestion.getMarks());
+        existing.setQuestionText(updated.getQuestionText());
+        existing.setQuestionType(updated.getQuestionType());
+        existing.setOptionA(updated.getOptionA());
+        existing.setOptionB(updated.getOptionB());
+        existing.setOptionC(updated.getOptionC());
+        existing.setOptionD(updated.getOptionD());
+        existing.setCorrectAnswer(updated.getCorrectAnswer());
+        existing.setMarks(updated.getMarks());
+
+        if (moduleId != null) {
+            Module module = moduleRepository.findById(moduleId)
+                    .orElseThrow(() ->
+                            new RuntimeException("Module not found!"));
+            existing.setModule(module);
+        }
+
         return questionRepository.save(existing);
     }
 
