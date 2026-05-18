@@ -17,7 +17,7 @@ import java.util.Map;
 public class ExamAttemptController {
 
     @Autowired
-    private ExamAttemptService examAttemptService;
+    private ExamAttemptService examAttemptService;  //Connects ExamAttemptService automatically
 
     @Autowired
     private ExamService examService;
@@ -30,12 +30,12 @@ public class ExamAttemptController {
     public String showStartPage(@PathVariable Long examId,
                                 HttpSession httpSession,
                                 Model model) {
-        if (!SessionUtils.isLoggedIn(httpSession)) {
-            return "redirect:/users/login";
+        if (!SessionUtils.isLoggedIn(httpSession)) { //Check login
+            return "redirect:/users/login"; //Redirects to login page
         }
         User loggedInUser =
-                SessionUtils.getLoggedInUser(httpSession);
-        if (!loggedInUser.getRole().name().equals("STUDENT")) {
+                SessionUtils.getLoggedInUser(httpSession); //Gets current user from session
+        if (!loggedInUser.getRole().name().equals("STUDENT")) { //Check role
             model.addAttribute("error",
                     "Only students can take exams!");
             return "users/accessdenied";
@@ -44,16 +44,20 @@ public class ExamAttemptController {
         // auto close expired sessions
         examSessionService.autoCloseSessions();
 
+        //Gets exam details from database
         Exam exam = examService.getExamById(examId);
 
         // find an active session for this exam
         List<ExamSession> sessions =
                 examSessionService.getSessionsByExam(examId);
+
+        //Finds first active session
         ExamSession activeSession = sessions.stream()
                 .filter(ExamSession::isActive)
                 .findFirst()
                 .orElse(null);
 
+        //If no active session
         if (activeSession == null) {
             model.addAttribute("error",
                     "No active session for this exam right now. " +
@@ -66,19 +70,22 @@ public class ExamAttemptController {
         // get total question count from active session
         List<SessionQuestion> sessionQuestions =
                 examSessionService.getSessionQuestions(
-                        activeSession.getId());
+                        activeSession.getId()); //Gets all questions
 
+        //Send data to page,Adds data to HTML page
         model.addAttribute("exam", exam);
         model.addAttribute("activeSession", activeSession);
         model.addAttribute("questionCount",
                 sessionQuestions.size());
         model.addAttribute("loggedInUser", loggedInUser);
+        //Open page
         return "attempts/start";
     }
 
     // ---- START EXAM ----
+    //Runs when student clicks Start Exam button
     @PostMapping("/start/{examId}")
-    public String startExam(@PathVariable Long examId,
+    public String startExam(@PathVariable Long examId, //Check login same as before
                             HttpSession httpSession,
                             Model model) {
         if (!SessionUtils.isLoggedIn(httpSession)) {
