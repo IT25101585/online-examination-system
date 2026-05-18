@@ -1,14 +1,14 @@
 package com.examSystem.online_exam_system.service;
 
 import com.examSystem.online_exam_system.model.*;
-import com.examSystem.online_exam_system.repository.ExamAttemptRepository;
-import com.examSystem.online_exam_system.repository.QuestionRepository;
+import com.examSystem.online_exam_system.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ExamAttemptService {
@@ -17,62 +17,74 @@ public class ExamAttemptService {
     private ExamAttemptRepository examAttemptRepository;
 
     @Autowired
-    private QuestionRepository questionRepository;
+    private SessionQuestionRepository sessionQuestionRepository;
 
     @Autowired
-    private ExamService examService;
+    private ExamRepository examRepository;
+
+    @Autowired
+    private ExamSessionRepository examSessionRepository;
 
     // ---- START EXAM ----
-    // creates a new attempt for a student
-    public ExamAttempt startExam(User student, Long examId) {
-        Exam exam = examService.getExamById(examId);
+    // in ExamAttemptService.java — update startExam
+    public ExamAttempt startExam(User student, Long examId,
+                                 Long sessionId) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new RuntimeException("Exam not found!"));
 
-        // check if student already attempted this exam
-        if (examAttemptRepository.existsByStudentAndExam(student, exam)) {
-            throw new RuntimeException("You have already attempted this exam!");
+        // check per SESSION not per exam
+        if (examAttemptRepository
+                .existsByStudentAndExamAndExamSessionId(
+                        student, exam, sessionId)) {
+            throw new RuntimeException(
+                    "You have already attempted this session!");
         }
 
-        // check if exam is published
-        if (exam.getStatus() != ExamStatus.PUBLISHED) {
-            throw new RuntimeException("This exam is not available yet!");
-        }
-
-        // create a new attempt
         ExamAttempt attempt = new ExamAttempt();
         attempt.setStudent(student);
         attempt.setExam(exam);
+        attempt.setExamSessionId(sessionId);
         attempt.setStatus(AttemptStatus.IN_PROGRESS);
         return examAttemptRepository.save(attempt);
     }
 
     // ---- SUBMIT EXAM ----
-    // receives the student's answers, calculates score, saves result
-    // answers is a map of questionId -> student's answer
-    public ExamAttempt submitExam(Long attemptId, Map<String, String> answers) {
+    // scores based on session questions, not exam questions
+    public ExamAttempt submitExam(Long attemptId,
+                                  Map<String, String> answers) {
         ExamAttempt attempt = getAttemptById(attemptId);
 
-        // check attempt is still in progress
         if (attempt.getStatus() != AttemptStatus.IN_PROGRESS) {
-            throw new RuntimeException("This exam has already been submitted!");
+            throw new RuntimeException(
+                    "This exam has already been submitted!");
         }
 
-        // get all questions for this exam
-        List<Question> questions = questionRepository.findByExam(attempt.getExam());
-
-        // calculate score by comparing student answers to correct answers
+        // get session questions for scoring
         int totalScore = 0;
-        for (Question question : questions) {
-            // get student's answer for this question
-            String studentAnswer = answers.get("answer_" + question.getId());
-            if (studentAnswer != null &&
-                    studentAnswer.trim().equalsIgnoreCase(question.getCorrectAnswer().trim())) {
-                // answer is correct — add marks
-                totalScore += question.getMarks();
+
+        if (attempt.getExamSessionId() != null) {
+            ExamSession examSession = examSessionRepository
+                    .findById(attempt.getExamSessionId())
+                    .orElse(null);
+
+            if (examSession != null) {
+                List<SessionQuestion> questions =
+                        sessionQuestionRepository
+                                .findBySession(examSession);
+
+                for (SessionQuestion q : questions) {
+                    String studentAnswer =
+                            answers.get("answer_" + q.getId());
+                    if (studentAnswer != null &&
+                            studentAnswer.trim().equalsIgnoreCase(
+                                    q.getCorrectAnswer().trim())) {
+                        totalScore += q.getMarks();
+                    }
+                }
             }
         }
 
-        // update the attempt with score and submission time
-        attempt.setTotalScore(totalScore);
+        attempt.setTotalScore((double) totalScore);
         attempt.setSubmittedAt(LocalDateTime.now());
         attempt.setStatus(AttemptStatus.GRADED);
         return examAttemptRepository.save(attempt);
@@ -81,25 +93,20 @@ public class ExamAttemptService {
     // ---- GET ATTEMPT BY ID ----
     public ExamAttempt getAttemptById(Long id) {
         return examAttemptRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Attempt not found!"));
+                .orElseThrow(() ->
+                        new RuntimeException("Attempt not found!"));
     }
 
-    // ---- GET ALL ATTEMPTS BY STUDENT ----
+    // ---- GET ATTEMPTS BY STUDENT ----
     public List<ExamAttempt> getAttemptsByStudent(User student) {
         return examAttemptRepository.findByStudent(student);
     }
 
-    // ---- GET ALL ATTEMPTS FOR AN EXAM ----
-    // for teachers and admins to see all students' results
+    // ---- GET ATTEMPTS BY EXAM ----
     public List<ExamAttempt> getAttemptsByExam(Long examId) {
-        Exam exam = examService.getExamById(examId);
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() ->
+                        new RuntimeException("Exam not found!"));
         return examAttemptRepository.findByExam(exam);
-    }
-
-    // ---- GET STUDENT'S ATTEMPT FOR A SPECIFIC EXAM ----
-    public ExamAttempt getAttemptByStudentAndExam(User student, Long examId) {
-        Exam exam = examService.getExamById(examId);
-        return examAttemptRepository.findByStudentAndExam(student, exam)
-                .orElseThrow(() -> new RuntimeException("No attempt found!"));
     }
 }
