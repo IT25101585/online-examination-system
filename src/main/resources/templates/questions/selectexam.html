@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Question Bank</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h2>Question Bank</h2>
+    <p style="color:#94a3b8;">
+        Select an exam to view or add questions to its question bank.
+    </p>
+
+    <p th:if="${#lists.isEmpty(exams)}"
+       style="color:#94a3b8; margin-top:20px;">
+        You have no exams yet.
+        <a href="/exams/create">Create one first!</a>
+    </p>
+
+    <table th:unless="${#lists.isEmpty(exams)}">
+        <thead>
+        <tr>
+            <th>Exam Title</th>
+            <th>Module</th>
+            <th>Status</th>
+            <th>Questions</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="exam : ${exams}">
+            <td th:text="${exam.title}"></td>
+            <td>
+                    <span th:if="${exam.module != null}"
+                          th:text="${exam.module.name}"
+                          class="badge-draft"></span>
+                <span th:if="${exam.module == null}"
+                      style="color:#64748b; font-size:12px;">
+                        No module
+                    </span>
+            </td>
+            <td>
+                    <span class="badge-published"
+                          th:if="${exam.status.name() == 'PUBLISHED'}">
+                        PUBLISHED
+                    </span>
+                <span class="badge-draft"
+                      th:if="${exam.status.name() == 'DRAFT'}">
+                        DRAFT
+                    </span>
+                <span class="badge-draft"
+                      th:if="${exam.status.name() == 'PENDING'}"
+                      style="background:#1c1917; color:#fbbf24;">
+                        PENDING
+                    </span>
+                <span class="badge-fail"
+                      th:if="${exam.status.name() == 'REJECTED'}">
+                        REJECTED
+                    </span>
+            </td>
+            <td th:text="${examQuestionCounts.get(exam.id)}"></td>
+            <td>
+                <a th:href="@{/questions/exam/{id}(id=${exam.id})}">
+                    View Questions
+                </a>
+                &nbsp;|&nbsp;
+                <a th:href="@{/questions/create/{id}(id=${exam.id})}">
+                    + Add Question
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <br/>
+    <a href="/dashboard">← Back to Dashboard</a>
+
+</div>
+</body>
+</html>

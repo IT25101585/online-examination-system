@@ -1,70 +1,108 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Edit Question</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Edit Question</title></head>
 <body>
-
-<h2>Edit Question</h2>
-
-<form th:action="@{/questions/edit/{id}(id=${question.id})}"
-      th:object="${question}" method="post">
-
-    <label>Question Text:</label>
-    <textarea th:field="*{questionText}" rows="3" cols="50" required></textarea>
-    <span th:if="${#fields.hasErrors('questionText')}"
-          th:errors="*{questionText}" style="color:red"></span>
-    <br/><br/>
-
-    <label>Question Type:</label>
-    <select th:field="*{questionType}" id="questionType" onchange="toggleOptions()">
-        <option th:each="type : ${questionTypes}"
-                th:value="${type}"
-                th:text="${type}">
-        </option>
-    </select>
-    <br/><br/>
-
-    <div id="mcqOptions">
-        <label>Option A:</label>
-        <input type="text" th:field="*{optionA}"/><br/><br/>
-
-        <label>Option B:</label>
-        <input type="text" th:field="*{optionB}"/><br/><br/>
-
-        <label>Option C:</label>
-        <input type="text" th:field="*{optionC}"/><br/><br/>
-
-        <label>Option D:</label>
-        <input type="text" th:field="*{optionD}"/><br/><br/>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">Edit Question</h2>
+        <p class="text-muted">
+            Module: <strong th:text="${question.module.name}"></strong>
+        </p>
     </div>
-
-    <label>Correct Answer:</label>
-    <input type="text" th:field="*{correctAnswer}" required/>
-    <span th:if="${#fields.hasErrors('correctAnswer')}"
-          th:errors="*{correctAnswer}" style="color:red"></span>
-    <br/><br/>
-
-    <label>Marks:</label>
-    <input type="number" th:field="*{marks}" min="1" required/>
-    <span th:if="${#fields.hasErrors('marks')}"
-          th:errors="*{marks}" style="color:red"></span>
-    <br/><br/>
-
-    <button type="submit">Save Changes</button>
-</form>
-
-<br/>
-<a th:href="@{/questions/exam/{examId}(examId=${question.exam.id})}">Back to Questions</a>
-
-<script>
-    function toggleOptions() {
-        var type = document.getElementById('questionType').value;
-        var mcqDiv = document.getElementById('mcqOptions');
-        mcqDiv.style.display = (type === 'MCQ') ? 'block' : 'none';
-    }
-    toggleOptions();
-</script>
-
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/questions/edit/{id}
+                              (id=${question.id})}"
+                          th:object="${question}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Move to Module
+                            </label>
+                            <select name="moduleId" class="form-select">
+                                <option th:each="module : ${modules}"
+                                        th:value="${module.id}"
+                                        th:text="${module.name}"
+                                        th:selected="${question.module.id
+                                            == module.id}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Question Type</label>
+                            <select th:field="*{questionType}"
+                                    id="questionType"
+                                    class="form-select"
+                                    onchange="toggleOptions()">
+                                <option th:each="type : ${questionTypes}"
+                                        th:value="${type}"
+                                        th:text="${type}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Question Text</label>
+                            <textarea th:field="*{questionText}"
+                                      class="form-control"
+                                      rows="3" required></textarea>
+                        </div>
+                        <div id="mcqOptions">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option A</label>
+                                    <input type="text"
+                                           th:field="*{optionA}"
+                                           class="form-control"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option B</label>
+                                    <input type="text"
+                                           th:field="*{optionB}"
+                                           class="form-control"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option C</label>
+                                    <input type="text"
+                                           th:field="*{optionC}"
+                                           class="form-control"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Option D</label>
+                                    <input type="text"
+                                           th:field="*{optionD}"
+                                           class="form-control"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correct Answer</label>
+                            <input type="text"
+                                   th:field="*{correctAnswer}"
+                                   class="form-control" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Marks</label>
+                            <input type="number" th:field="*{marks}"
+                                   class="form-control"
+                                   min="1" required/>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                Save Changes
+                            </button>
+                            <a th:href="@{/questions/module/{id}
+                                (id=${question.module.id})}"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
