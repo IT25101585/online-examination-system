@@ -64,6 +64,6 @@ public class ExamAttempt {
     public AttemptStatus getStatus() { return status; }
     public void setStatus(AttemptStatus status) { this.status = status; }
 
-    public Integer getTotalScore() { return totalScore; }
+    public Double getTotalScore() { return totalScore; }
     public void setTotalScore(Integer totalScore) { this.totalScore = totalScore; }
 }
