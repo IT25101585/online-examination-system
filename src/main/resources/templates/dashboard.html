@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Dashboard</title></head>
+<body>
+<div layout:fragment="content">
+
+    <!-- ===== ADMIN DASHBOARD ===== -->
+    <div th:if="${loggedInUser.role.name() == 'ADMIN'}">
+        <div class="page-header mb-3">
+            <h2 class="page-title">Admin Dashboard</h2>
+        </div>
+
+        <!-- stat cards -->
+        <div class="row row-deck row-cards mb-3">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Total Users</div>
+                        <div class="h1 mb-0"
+                             th:text="${totalUsers}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Total Exams</div>
+                        <div class="h1 mb-0"
+                             th:text="${totalExams}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Teachers</div>
+                        <div class="h1 mb-0"
+                             th:text="${totalTeachers}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Students</div>
+                        <div class="h1 mb-0"
+                             th:text="${totalStudents}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- recent activity -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">Recent User Activity</h3>
+                <div class="card-options">
+                    <a href="/users/all"
+                       class="btn btn-sm btn-primary">
+                        Manage Users
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Email</th>
+                            <th>Last Active</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(recentLogins)}">
+                            <td colspan="5"
+                                class="text-center text-muted py-3">
+                                No recent activity yet.
+                            </td>
+                        </tr>
+                        <tr th:each="u : ${recentLogins}">
+                            <td th:text="${u.name}"></td>
+                            <td>
+                                    <span class="badge bg-blue-lt"
+                                          th:if="${u.role.name() == 'ADMIN'}"
+                                          th:text="${u.role}"></span>
+                                <span class="badge bg-green-lt"
+                                      th:if="${u.role.name() == 'TEACHER'}"
+                                      th:text="${u.role}"></span>
+                                <span class="badge bg-purple-lt"
+                                      th:if="${u.role.name() == 'STUDENT'}"
+                                      th:text="${u.role}"></span>
+                            </td>
+                            <td class="text-muted"
+                                th:text="${u.email}"></td>
+                            <td class="text-muted"
+                                th:text="${u.lastLogin}"></td>
+                            <td>
+                                    <span class="badge bg-success-lt"
+                                          th:if="${u.lastLogin != null and
+                                          #temporals.createNow()
+                                          .minusMinutes(30)
+                                          .isBefore(u.lastLogin)}">
+                                        Active
+                                    </span>
+                                <span class="badge bg-secondary-lt"
+                                      th:unless="${u.lastLogin != null and
+                                          #temporals.createNow()
+                                          .minusMinutes(30)
+                                          .isBefore(u.lastLogin)}">
+                                        Offline
+                                    </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- quick actions -->
+        <h3 class="mb-3">Quick Actions</h3>
+        <div class="row row-cards mb-3">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="h1 mb-2">👥</div>
+                        <div class="subheader">User Management</div>
+                        <p class="text-muted small mt-1">
+                            View, manage and delete user accounts.
+                        </p>
+                        <a href="/users/all"
+                           class="btn btn-primary w-100 mt-2">
+                            Manage Users
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="h1 mb-2">⚙️</div>
+                        <div class="subheader">Account Settings</div>
+                        <p class="text-muted small mt-1">
+                            Update your admin profile and password.
+                        </p>
+                        <a href="/account/settings"
+                           class="btn btn-primary w-100 mt-2">
+                            Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="h1 mb-2">📋</div>
+                        <div class="subheader">Exam Management</div>
+                        <p class="text-muted small mt-1">
+                            Review and approve exams from teachers.
+                        </p>
+                        <span th:if="${pendingCount > 0}"
+                              class="badge bg-warning-lt mb-2 d-block">
+                            ⚠️ <span th:text="${pendingCount}"></span>
+                            pending approval
+                        </span>
+                        <a href="/exams"
+                           class="btn btn-primary w-100 mt-2">
+                            Review Exams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- pending exams -->
+        <div class="card" th:if="${pendingCount > 0}">
+            <div class="card-header">
+                <h3 class="card-title text-warning">
+                    ⚠️ Pending Approval
+                    (<span th:text="${pendingCount}"></span>)
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                    <tr>
+                        <th>Exam Title</th>
+                        <th>Created By</th>
+                        <th>Duration</th>
+                        <th>Total Marks</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="exam : ${pendingExams}">
+                        <td th:text="${exam.title}"></td>
+                        <td th:text="${exam.createdBy.name}"></td>
+                        <td th:text="${exam.durationMins} + ' mins'">
+                        </td>
+                        <td th:text="${exam.totalMarks}"></td>
+                        <td>
+                            <a th:href="@{/exams/approve/{id}
+                                    (id=${exam.id})}"
+                               class="btn btn-sm btn-success me-1">
+                                ✅ Approve
+                            </a>
+                            <a th:href="@{/exams/reject/{id}
+                                    (id=${exam.id})}"
+                               class="btn btn-sm btn-danger me-1">
+                                ❌ Reject
+                            </a>
+                            <a th:href="@{/exams/{id}(id=${exam.id})}"
+                               class="btn btn-sm btn-outline-secondary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TEACHER DASHBOARD ===== -->
+    <div th:if="${loggedInUser.role.name() == 'TEACHER'}">
+        <div class="page-header mb-3">
+            <h2 class="page-title">Teacher Dashboard</h2>
+        </div>
+
+        <!-- notifications -->
+        <div th:if="${!#lists.isEmpty(rejectedExams)}"
+             class="alert alert-danger mb-3">
+            <strong>❌ Exam(s) Rejected:</strong>
+            <span th:each="exam, i : ${rejectedExams}">
+                <a th:href="@{/exams/{id}(id=${exam.id})}"
+                   th:text="${exam.title}"
+                   class="alert-link"></a>
+                <span th:unless="${i.last}"> | </span>
+            </span>
+            — Please revise and resubmit.
+        </div>
+
+        <div th:if="${!#lists.isEmpty(approvedExams)}"
+             class="alert alert-success mb-3">
+            <strong>✅ Published Exam(s):</strong>
+            <span th:each="exam, i : ${approvedExams}">
+                <a th:href="@{/exams/{id}(id=${exam.id})}"
+                   th:text="${exam.title}"
+                   class="alert-link"></a>
+                <span th:unless="${i.last}"> | </span>
+            </span>
+        </div>
+
+        <!-- stat cards -->
+        <div class="row row-deck row-cards mb-3">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Pending Approval</div>
+                        <div class="h1 mb-0"
+                             th:text="${pendingApproval}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Published Exams</div>
+                        <div class="h1 mb-0"
+                             th:text="${publishedExams}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Total Students</div>
+                        <div class="h1 mb-0"
+                             th:text="${totalStudents}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Pending Grading</div>
+                        <div class="h1 mb-0"
+                             th:text="${pendingGradingCount}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- session and grading cards -->
+        <div class="row row-cards mb-3">
+
+            <!-- active sessions -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="badge bg-red me-2"></span>
+                            Active Sessions
+                        </h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                <tr>
+                                    <th>Exam</th>
+                                    <th>Ends At</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:if="${#lists.isEmpty(
+                                            activeSessions)}">
+                                    <td colspan="2"
+                                        class="text-center
+                                                   text-muted py-3">
+                                        No active sessions.
+                                    </td>
+                                </tr>
+                                <tr th:each="s : ${activeSessions}">
+                                    <td th:text="${s.exam.title}">
+                                    </td>
+                                    <td class="text-muted"
+                                        th:text="${s.endTime}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- upcoming sessions -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📅 Upcoming Sessions</h3>
+                        <div class="card-options">
+                            <a href="/sessions"
+                               class="btn btn-sm btn-primary">
+                                + Add
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                <tr>
+                                    <th>Exam</th>
+                                    <th>Starts At</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:if="${#lists.isEmpty(
+                                            upcomingSessions)}">
+                                    <td colspan="2"
+                                        class="text-center
+                                                   text-muted py-3">
+                                        No upcoming sessions.
+                                    </td>
+                                </tr>
+                                <tr th:each="s : ${upcomingSessions}">
+                                    <td th:text="${s.exam.title}">
+                                    </td>
+                                    <td class="text-muted"
+                                        th:text="${s.startTime}">
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- pending grading -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📝 Pending Grading</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Score</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:if="${#lists.isEmpty(
+                                            pendingGrading)}">
+                                    <td colspan="3"
+                                        class="text-center
+                                                   text-muted py-3">
+                                        All caught up! 🎉
+                                    </td>
+                                </tr>
+                                <tr th:each="r : ${pendingGrading}">
+                                    <td th:text="${r.student.name}">
+                                    </td>
+                                    <td th:text="${r.totalScore}
+                                            + '/' + ${r.totalMarks}">
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/results/grade/
+                                                {id}(id=${r.id})}"
+                                           class="btn btn-sm
+                                                      btn-primary">
+                                            Grade
+                                        </a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/results/pending"
+                           class="text-muted small">
+                            View all pending →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- quick actions -->
+        <h3 class="mb-3">Quick Actions</h3>
+        <div class="row row-cards">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="h1 mb-2">➕</div>
+                        <div class="subheader mb-2">Create Exam</div>
+                        <a href="/exams/create"
+                           class="btn btn-primary w-100">
+                            Create New Exam
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="h1 mb-2">📝</div>
+                        <div class="subheader mb-2">Question Bank</div>
+                        <a href="/questions/bank"
+                           class="btn btn-primary w-100">
+                            Add to Question Bank
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="h1 mb-2">📊</div>
+                        <div class="subheader mb-2">Exam History</div>
+                        <a href="/history/admin"
+                           class="btn btn-primary w-100">
+                            Exam History
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="h1 mb-2">⚙️</div>
+                        <div class="subheader mb-2">Settings</div>
+                        <a href="/account/settings"
+                           class="btn btn-primary w-100">
+                            Account Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STUDENT DASHBOARD ===== -->
+    <div th:if="${loggedInUser.role.name() == 'STUDENT'}">
+        <div class="page-header mb-3">
+            <h2 class="page-title">Student Dashboard</h2>
+        </div>
+
+        <!-- stat cards -->
+        <div class="row row-deck row-cards mb-3">
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Available Exams</div>
+                        <div class="h1 mb-0"
+                             th:text="${totalAvailable}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Active Sessions</div>
+                        <div class="h1 mb-0"
+                             th:text="${#lists.size(activeSessions)}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Upcoming Sessions</div>
+                        <div class="h1 mb-0"
+                             th:text="${#lists.size(upcomingSessions)}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- active sessions -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <span class="badge bg-red me-2"></span>
+                    Active Exams — Take Now!
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                    <tr>
+                        <th>Exam</th>
+                        <th>Session</th>
+                        <th>Ends At</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(activeSessions)}">
+                        <td colspan="4"
+                            class="text-center text-muted py-3">
+                            No exams active right now.
+                        </td>
+                    </tr>
+                    <tr th:each="s : ${activeSessions}">
+                        <td th:text="${s.exam.title}"></td>
+                        <td class="text-muted"
+                            th:text="${s.label != null ?
+                                    s.label : 'Session ' + s.id}">
+                        </td>
+                        <td class="text-muted"
+                            th:text="${s.endTime}"></td>
+                        <td>
+                            <a th:href="@{/attempts/start/{id}
+                                    (id=${s.exam.id})}"
+                               class="btn btn-sm btn-success">
+                                🚀 Take Exam
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- upcoming sessions -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">📅 Upcoming Exams</h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                    <tr>
+                        <th>Exam</th>
+                        <th>Session</th>
+                        <th>Starts At</th>
+                        <th>Duration</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(upcomingSessions)}">
+                        <td colspan="4"
+                            class="text-center text-muted py-3">
+                            No upcoming exams scheduled.
+                        </td>
+                    </tr>
+                    <tr th:each="s : ${upcomingSessions}">
+                        <td th:text="${s.exam.title}"></td>
+                        <td class="text-muted"
+                            th:text="${s.label != null ?
+                                    s.label : 'Session ' + s.id}">
+                        </td>
+                        <td class="text-muted"
+                            th:text="${s.startTime}"></td>
+                        <td th:text="${s.exam.durationMins}
+                                + ' mins'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- quick links -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Quick Links</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2">
+                    <a href="/history/student"
+                       class="btn btn-outline-primary">
+                        📊 My Exam History
+                    </a>
+                    <a href="/account/settings"
+                       class="btn btn-outline-secondary">
+                        ⚙️ Account Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+
