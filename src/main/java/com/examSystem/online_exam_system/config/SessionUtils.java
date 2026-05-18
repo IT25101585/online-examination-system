@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpSession;
 // "static" means we can call these methods without creating an object
 public class SessionUtils {
 
-    // gets the currently logged in user from the session
+    // gets the currently logged-in user from the session
     // returns null if nobody is logged in
     public static User getLoggedInUser(HttpSession session) {
         return (User) session.getAttribute("loggedInUser");
