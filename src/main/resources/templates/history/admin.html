@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>History Overview</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header mb-3">
+        <h2 class="page-title">Exam History Overview</h2>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h3 class="card-title">All Exams</h3>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>Exam</th>
+                    <th>Status</th>
+                    <th>Total Marks</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(exams)}">
+                    <td colspan="4"
+                        class="text-center text-muted py-3">
+                        No exams yet.
+                    </td>
+                </tr>
+                <tr th:each="exam : ${exams}">
+                    <td th:text="${exam.title}"></td>
+                    <td>
+                            <span class="badge bg-success-lt"
+                                  th:if="${exam.status.name()
+                                      == 'PUBLISHED'}">Published</span>
+                        <span class="badge bg-secondary-lt"
+                              th:if="${exam.status.name()
+                                      == 'DRAFT'}">Draft</span>
+                        <span class="badge bg-warning-lt"
+                              th:if="${exam.status.name()
+                                      == 'PENDING'}">Pending</span>
+                        <span class="badge bg-danger-lt"
+                              th:if="${exam.status.name()
+                                      == 'REJECTED'}">Rejected</span>
+                    </td>
+                    <td th:text="${exam.totalMarks}"></td>
+                    <td>
+                        <a th:href="@{/results/exam/{id}
+                                (id=${exam.id})}"
+                           class="btn btn-sm
+                                      btn-outline-primary me-1">
+                            Results
+                        </a>
+                        <a th:href="@{/attempts/exam/{id}
+                                (id=${exam.id})}"
+                           class="btn btn-sm
+                                      btn-outline-secondary">
+                            Attempts
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card"
+         th:if="${loggedInUser.role.name() == 'ADMIN'}">
+        <div class="card-header">
+            <h3 class="card-title">All Students</h3>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(students)}">
+                    <td colspan="3"
+                        class="text-center text-muted py-3">
+                        No students yet.
+                    </td>
+                </tr>
+                <tr th:each="student : ${students}">
+                    <td th:text="${student.name}"></td>
+                    <td class="text-muted"
+                        th:text="${student.email}"></td>
+                    <td>
+                        <a th:href="@{/history/student/{id}
+                                (id=${student.id})}"
+                           class="btn btn-sm
+                                      btn-outline-secondary">
+                            View History
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="/dashboard"
+           class="btn btn-outline-secondary">← Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

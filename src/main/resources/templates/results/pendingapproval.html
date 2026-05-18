@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Result Pending</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="empty">
+        <div class="empty-img" style="font-size:4rem;">⏳</div>
+        <p class="empty-title">Result Pending Review</p>
+        <p class="empty-subtitle text-muted">
+            Your exam has been submitted and scored. The teacher is
+            currently reviewing the results. You will see your result
+            once it has been approved.
+        </p>
+        <div class="empty-action">
+            <a href="/dashboard" class="btn btn-primary">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
