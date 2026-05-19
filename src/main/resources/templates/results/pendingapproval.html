@@ -7,13 +7,18 @@
 <div layout:fragment="content">
     <div class="empty">
         <div class="empty-img" style="font-size:4rem;">⏳</div>
-        <p class="empty-title">Result Pending Review</p>
+        <p class="empty-title">Result Pending Teacher Review</p>
         <p class="empty-subtitle text-muted">
-            Your exam has been submitted and scored. The teacher is
-            currently reviewing the results. You will see your result
-            once it has been approved.
+            Your exam has been submitted and automatically scored.
+            Your teacher will review each question and answer
+            individually before releasing your result.
+            Check back later!
         </p>
         <div class="empty-action">
+            <a href="/history/student"
+               class="btn btn-outline-primary me-2">
+                My Exam History
+            </a>
             <a href="/dashboard" class="btn btn-primary">
                 Back to Dashboard
             </a>
