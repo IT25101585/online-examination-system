@@ -2,10 +2,7 @@ package com.examSystem.online_exam_system.controller;
 
 import com.examSystem.online_exam_system.config.SessionUtils;
 import com.examSystem.online_exam_system.model.*;
-import com.examSystem.online_exam_system.service.ExamAttemptService;
-import com.examSystem.online_exam_system.service.ExamService;
-import com.examSystem.online_exam_system.service.ExamSessionService;
-import com.examSystem.online_exam_system.service.ResultService;
+import com.examSystem.online_exam_system.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,8 +27,9 @@ public class ResultController {
     @Autowired
     private ExamSessionService examSessionService;
 
-    // ---- VIEW SINGLE RESULT ----
-    // automatically saves the result if not already saved
+    // ---- VIEW RESULT ----
+    // students can only see this after teacher approves
+    // this endpoint is called after student submits attempt
     @GetMapping("/{attemptId}")
     public String viewResult(@PathVariable Long attemptId,
                              HttpSession session,
@@ -39,14 +37,15 @@ public class ResultController {
         if (!SessionUtils.isLoggedIn(session)) {
             return "redirect:/users/login";
         }
-        ExamAttempt attempt = examAttemptService.getAttemptById(attemptId);
+        User loggedInUser = SessionUtils.getLoggedInUser(session);
+        ExamAttempt attempt =
+                examAttemptService.getAttemptById(attemptId);
 
-        // save result if not already saved
+        // auto-save result when student submits
+        // teacherApproved defaults to false inside saveResult
         Result result = resultService.saveResult(attempt);
 
-        User loggedInUser = SessionUtils.getLoggedInUser(session);
-
-        // students can only see approved results
+        // students cannot see result until teacher approves
         if (loggedInUser.getRole().name().equals("STUDENT") &&
                 !result.getTeacherApproved()) {
             model.addAttribute("loggedInUser", loggedInUser);
@@ -54,12 +53,13 @@ public class ResultController {
         }
 
         model.addAttribute("result", result);
-        model.addAttribute("loggedInUser", SessionUtils.getLoggedInUser(session));
+        model.addAttribute("loggedInUser", loggedInUser);
         return "results/view";
     }
 
-    // ---- VIEW EXAM HISTORY (student) ----
-    // shows all results for the logged in student
+    // ---- VIEW EXAM HISTORY ----
+    // students only see approved results
+    // teachers/admins see all
     @GetMapping("/history")
     public String viewHistory(HttpSession session, Model model) {
         if (!SessionUtils.isLoggedIn(session)) {
@@ -67,21 +67,28 @@ public class ResultController {
         }
         User loggedInUser = SessionUtils.getLoggedInUser(session);
 
-        // students only see approved results
-        List<Result> results = loggedInUser.getRole().name()
-                .equals("STUDENT")
-                ? resultService.getApprovedResultsByStudent(loggedInUser)
-                : resultService.getResultsByStudent(loggedInUser);
+        List<Result> results;
+        if (loggedInUser.getRole().name().equals("STUDENT")) {
+            // students only see teacher-approved results
+            results = resultService
+                    .getApprovedResultsByStudent(loggedInUser);
+        } else {
+            // teachers and admins see all results
+            results = resultService
+                    .getResultsByStudent(loggedInUser);
+        }
+
+        long passCount = resultService.getPassCount(loggedInUser);
+        long failCount = resultService.getFailCount(loggedInUser);
 
         model.addAttribute("results", results);
         model.addAttribute("loggedInUser", loggedInUser);
-        model.addAttribute("passCount", resultService.getPassCount(loggedInUser));
-        model.addAttribute("failCount", resultService.getFailCount(loggedInUser));
+        model.addAttribute("passCount", passCount);
+        model.addAttribute("failCount", failCount);
         return "results/history";
     }
 
     // ---- VIEW ALL RESULTS FOR AN EXAM (teacher/admin) ----
-    // only shows results if at least one session is closed
     @GetMapping("/exam/{examId}")
     public String viewResultsByExam(@PathVariable Long examId,
                                     HttpSession session,
@@ -94,25 +101,18 @@ public class ResultController {
             model.addAttribute("error", "Access denied!");
             return "users/accessdenied";
         }
-
         examSessionService.autoCloseSessions();
-
         Exam exam = examService.getExamById(examId);
-
-        // auto close expired sessions first
-        // (injected via ExamSessionService)
-        List<Result> results = resultService.getResultsByExam(
-                examService.getExamById(examId)
-        );
-        model.addAttribute("results", results);
-        model.addAttribute("exam", examService.getExamById(examId));
+        model.addAttribute("results",
+                resultService.getResultsByExam(exam));
+        model.addAttribute("exam", exam);
         model.addAttribute("loggedInUser", loggedInUser);
         return "results/all";
     }
 
-
     // ---- GRADING REVIEW PAGE ----
-    // teacher reviews a specific student's attempt before approving
+    // teacher reviews each question and student answer
+    // side by side before approving
     @GetMapping("/grade/{resultId}")
     public String gradeResult(@PathVariable Long resultId,
                               HttpSession session,
@@ -129,15 +129,17 @@ public class ResultController {
         Result result = resultService.getResultById(resultId);
         ExamAttempt attempt = result.getAttempt();
 
-        // get the session questions so teacher can compare
-        // answers against the actual questions shown to student
+        // load session questions so teacher can compare
+        // each question against the student's answer
         List<SessionQuestion> sessionQuestions = null;
         try {
-            // try to get session questions if they exist
-            sessionQuestions = examSessionService
-                    .getSessionQuestions(attempt.getId());
+            if (attempt.getExamSessionId() != null) {
+                sessionQuestions =
+                        examSessionService.getSessionQuestions(
+                                attempt.getExamSessionId());
+            }
         } catch (Exception e) {
-            // fallback — session questions not found
+            // session questions not found — still show the page
         }
 
         model.addAttribute("result", result);
@@ -148,6 +150,9 @@ public class ResultController {
     }
 
     // ---- HANDLE APPROVE RESULT ----
+    // teacher approves — student can now see result
+    // teacher can override score for any question
+    // (especially useful for short answer questions)
     @PostMapping("/approve/{resultId}")
     public String approveResult(
             @PathVariable Long resultId,
@@ -163,15 +168,17 @@ public class ResultController {
             model.addAttribute("error", "Access denied!");
             return "users/accessdenied";
         }
-        resultService.approveResult(resultId, teacherNote, overriddenScore);
+        resultService.approveResult(
+                resultId, teacherNote, overriddenScore);
         Result result = resultService.getResultById(resultId);
-        return "redirect:/results/exam/" + result.getExam().getId()
-                + "?approved=true";
+        return "redirect:/results/exam/" +
+                result.getExam().getId() + "?approved=true";
     }
 
-    // ---- VIEW PENDING GRADING (teacher) ----
+    // ---- VIEW PENDING GRADING ----
     @GetMapping("/pending")
-    public String viewPendingGrading(HttpSession session, Model model) {
+    public String viewPendingGrading(HttpSession session,
+                                     Model model) {
         if (!SessionUtils.isLoggedIn(session)) {
             return "redirect:/users/login";
         }
@@ -180,10 +187,9 @@ public class ResultController {
             model.addAttribute("error", "Access denied!");
             return "users/accessdenied";
         }
-        List<Result> pending = resultService.getPendingReviewResults();
-        model.addAttribute("pendingResults", pending);
+        model.addAttribute("pendingResults",
+                resultService.getPendingReviewResults());
         model.addAttribute("loggedInUser", loggedInUser);
         return "results/pending";
     }
 }
-

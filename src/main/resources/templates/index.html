@@ -257,6 +257,7 @@
 <!--<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>-->
 <!--</body>-->
 <!--</html>-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -272,6 +273,8 @@
     <style>
         /* ===== PAGE BACKGROUND ===== */
         body {
+            background: url('/images/download2.jpg') center center / cover no-repeat fixed;
+            color: #ffffff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -285,7 +288,7 @@
             inset: 0;
             background:
                     radial-gradient(circle at top right,
-                    rgba(32, 107, 196, 0.15),
+                    rgba(32, 107, 196, 0.25),
                     transparent 40%);
             z-index: -1;
         }
@@ -311,6 +314,11 @@
 
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
+
+            /* Shadow */
+            box-shadow:
+                    0 8px 32px rgba(0, 0, 0, 0.25),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         .hero-logo {
