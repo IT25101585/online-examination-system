@@ -5,77 +5,84 @@ import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "exams")
+@Table(name = "exams") // Specifies the database table name
 public class Exam {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment ID
     private Long id;
 
     @NotBlank(message = "Title is required")
     @Size(min = 3, message = "Title must be at least 3 characters")
     @Column(nullable = false)
-    private String title;
+    private String title; // Title of the exam
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @Column(columnDefinition = "TEXT") // Allows storing long text for descriptions
+    private String description; // Short overview of the exam
 
-    @ManyToOne
+    @ManyToOne // Multiple exams can belong to a single module
     @JoinColumn(name = "module_id")
-    private Module module;
+    private Module module; // The academic module/subject this exam belongs to
 
     @NotNull(message = "Duration is required")
     @Min(value = 1, message = "Duration must be at least 1 minute")
     @Column(nullable = false)
-    private Integer durationMins;
+    private Integer durationMins; // Total time allowed for the exam in minutes
 
     @NotNull(message = "Total marks is required")
     @Min(value = 1, message = "Total marks must be at least 1")
     @Column(nullable = false)
-    private Double totalMarks;
+    private Double totalMarks; // Maximum possible marks for the exam
 
-    // how many of each question type to pick randomly
+    // --- Question Configurations (Random Selection Count) ---
+
     @Column(name = "mcq_count")
-    private Integer mcqCount = 0;
+    private Integer mcqCount = 0; // Number of Multiple Choice Questions to include
 
     @Column(name = "true_false_count")
-    private Integer trueFalseCount = 0;
+    private Integer trueFalseCount = 0; // Number of True/False questions to include
 
     @Column(name = "short_answer_count")
-    private Integer shortAnswerCount = 0;
+    private Integer shortAnswerCount = 0; // Number of Short Answer questions to include
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) // Stores the enum value as a String in the database
     @Column(nullable = false)
-    private ExamStatus status = ExamStatus.DRAFT;
+    private ExamStatus status = ExamStatus.DRAFT; // Current lifecycle state of the exam (e.g., DRAFT, PUBLISHED)
 
-    @ManyToOne
+    @ManyToOne // Multiple exams can be created by a single user (e.g., Lecturer/Admin)
     @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
+    private User createdBy; // The user who created this exam
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // Date and time when the exam record was created
 
-    @PrePersist
+    @PrePersist // Runs automatically right before saving the entity to the database
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(); // Sets the current timestamp
     }
 
-    // marks per question type — stored so total can be recalculated
+    // --- Dynamic Calculation Marks Configuration ---
+
     @Column(name = "mcq_marks_each")
-    private Double mcqMarksEach = 1.0;
+    private Double mcqMarksEach = 1.0; // Marks allocated for each MCQ item
 
     @Column(name = "tf_marks_each")
-    private Double tfMarksEach = 1.0;
+    private Double tfMarksEach = 1.0; // Marks allocated for each True/False item
 
     @Column(name = "sa_marks_each")
-    private Double saMarksEach = 2.0;
+    private Double saMarksEach = 2.0; // Marks allocated for each Short Answer item
 
-    // total question count
+    /**
+     * Calculates the total number of questions configured for this exam.
+     * @return Sum of all question types, handling null values safely.
+     */
     public int getTotalQuestionCount() {
         return (mcqCount == null ? 0 : mcqCount) +
                 (trueFalseCount == null ? 0 : trueFalseCount) +
                 (shortAnswerCount == null ? 0 : shortAnswerCount);
     }
+
+    // --- Getters and Setters ---
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

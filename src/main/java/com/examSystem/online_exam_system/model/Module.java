@@ -4,32 +4,35 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
-// represents a subject module e.g. "OOP", "Data Structures"
-// created by admin only
-// questions are tagged to a module
-// teachers can filter question bank by module when creating exams
+/**
+ * Represents a subject module (e.g., "OOP", "Data Structures").
+ * Created by admin only. Questions are tagged to a module.
+ * Teachers can filter the question bank by module when creating exams.
+ */
 @Entity
-@Table(name = "modules")
+@Table(name = "modules") // Specifies the database table name for modules
 public class Module {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment primary key
     private Long id;
 
     @NotBlank(message = "Module name is required")
-    @Column(nullable = false, unique = true)
-    private String name;
+    @Column(nullable = false, unique = true) // Database constraints: Cannot be null and must be unique
+    private String name; // Name of the module (e.g., Information Technology, Discrete Mathematics)
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @Column(columnDefinition = "TEXT") // Allows storing longer descriptions in the database
+    private String description; // Brief overview or syllabus details of the module
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // Timestamp indicating when the module was added to the system
 
-    @PrePersist
+    @PrePersist // Lifecycle callback that runs automatically right before saving a new record
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(); // Captures and assigns the current system date and time
     }
+
+    // --- Getters and Setters ---
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
