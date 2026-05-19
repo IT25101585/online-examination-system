@@ -9,36 +9,33 @@
         <div class="col-md-6">
             <div class="card text-center">
                 <div class="card-body py-5">
-                    <div class="h1 mb-3"
-                         th:text="${exam.title}"></div>
-                    <p class="text-muted">
+                    <div style="font-size:4rem;">✅</div>
+                    <h2 class="mt-3"
+                        th:text="${exam.title}"></h2>
+                    <p class="text-muted mt-2">
                         Exam submitted successfully!
+                        Your answers have been recorded and
+                        automatically scored.
                     </p>
-                    <div class="display-4 fw-bold text-success my-3"
-                         th:text="${attempt.totalScore} + '/' +
-                             ${exam.totalMarks}"></div>
-                    <p class="text-muted">
-                        <strong th:text="${percentage} + '%'"></strong>
-                    </p>
-                    <div th:if="${percentage >= 50}"
-                         class="alert alert-success">
-                        ✅ PASSED!
+                    <div class="alert alert-info mt-3 text-start">
+                        <strong>What happens next?</strong>
+                        <ol class="mb-0 mt-2">
+                            <li>Your teacher will review each
+                                question and answer</li>
+                            <li>They may adjust marks for short
+                                answer questions</li>
+                            <li>Once approved, your result will
+                                appear in your history</li>
+                        </ol>
                     </div>
-                    <div th:if="${percentage < 50}"
-                         class="alert alert-danger">
-                        ❌ FAILED
-                    </div>
-                    <p class="text-muted small mt-3">
-                        Your result is pending teacher review.
-                        You'll be notified once it's approved.
-                    </p>
-                    <div class="d-flex gap-2 justify-content-center mt-3">
-                        <a href="/results/history"
-                           class="btn btn-primary">
+                    <div class="d-flex gap-2
+                                justify-content-center mt-4">
+                        <a href="/history/student"
+                           class="btn btn-outline-primary">
                             My Exam History
                         </a>
                         <a href="/dashboard"
-                           class="btn btn-outline-secondary">
+                           class="btn btn-primary">
                             Dashboard
                         </a>
                     </div>
@@ -49,4 +46,3 @@
 </div>
 </body>
 </html>
-

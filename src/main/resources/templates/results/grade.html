@@ -9,6 +9,7 @@
         <h2 class="page-title">Review &amp; Grade</h2>
     </div>
 
+    <!-- student and exam info cards -->
     <div class="row row-cards mb-3">
         <div class="col-md-4">
             <div class="card">
@@ -34,86 +35,175 @@
             <div class="card">
                 <div class="card-body">
                     <div class="subheader">Auto Score</div>
-                    <div class="h1 mt-1 text-success"
-                         th:text="${result.totalScore} + '/' +
-                             ${result.totalMarks}"></div>
-                    <div class="text-muted small"
-                         th:text="${result.percentage} + '% — ' +
-                             ${result.grade}"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card mb-3"
-         th:if="${sessionQuestions != null and
-             !#lists.isEmpty(sessionQuestions)}">
-        <div class="card-header">
-            <h3 class="card-title">Student Answers</h3>
-        </div>
-        <div class="card-body p-0">
-            <div th:each="q, i : ${sessionQuestions}"
-                 class="border-bottom p-3">
-                <p class="mb-2">
-                    <strong th:text="${i.count} + '. ' +
-                        ${q.questionText}"></strong>
-                    <span class="badge bg-blue-lt ms-2"
-                          th:text="${q.questionType}"></span>
-                    <span class="text-muted ms-2 small">
-                        (<span th:text="${q.marks}"></span> marks)
-                    </span>
-                </p>
-                <div th:if="${q.questionType.name() == 'MCQ'}"
-                     class="text-muted small ps-3 mb-2">
-                    <div>A: <span th:text="${q.optionA}"></span></div>
-                    <div>B: <span th:text="${q.optionB}"></span></div>
-                    <div>C: <span th:text="${q.optionC}"></span></div>
-                    <div>D: <span th:text="${q.optionD}"></span></div>
-                </div>
-                <p class="text-success small mb-0">
-                    ✓ Correct Answer:
-                    <strong th:text="${q.correctAnswer}"></strong>
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Approve Result</h3>
-        </div>
-        <div class="card-body">
-            <form th:action="@{/results/approve/{id}(id=${result.id})}"
-                  method="post">
-                <div class="mb-3">
-                    <label class="form-label">
-                        Override Score (optional)
-                    </label>
-                    <input type="number" name="overriddenScore"
-                           class="form-control"
-                           th:placeholder="${result.totalScore}"
-                           min="0"
-                           th:max="${result.totalMarks}"/>
-                    <div class="form-hint">
-                        Auto score:
-                        <strong th:text="${result.totalScore}"></strong>
+                    <div class="h1 mt-1 text-success">
+                        <span th:text="${result.totalScore}"></span>
                         /
-                        <strong th:text="${result.totalMarks}"></strong>.
-                        Leave blank to keep it.
+                        <span th:text="${result.totalMarks}"></span>
+                    </div>
+                    <div class="text-muted small">
+                        <span th:text="${result.percentage}"></span>%
+                        —
+                        <span th:text="${result.grade}"></span>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- questions and answers review -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h3 class="card-title">Question by Question Review</h3>
+            <div class="card-subtitle text-muted">
+                Auto-scoring compares exact answers. For short answer
+                questions, manually check and adjust marks below if needed.
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${sessionQuestions == null or
+                          #lists.isEmpty(sessionQuestions)}"
+                 class="p-3 text-muted">
+                Detailed question breakdown not available
+                for this attempt.
+            </div>
+
+            <!-- one row per question -->
+            <div th:unless="${sessionQuestions == null or
+                               #lists.isEmpty(sessionQuestions)}">
+                <div th:each="q, i : ${sessionQuestions}"
+                     class="border-bottom p-3">
+                    <div class="row align-items-start">
+
+                        <!-- question details -->
+                        <div class="col-md-8">
+                            <p class="mb-1">
+                                <strong
+                                        th:text="${i.count} + '. '">
+                                </strong>
+                                <span th:text="${q.questionText}">
+                                </span>
+                            </p>
+                            <div class="d-flex gap-2 mb-2">
+                                <span class="badge bg-blue-lt"
+                                      th:text="${q.questionType}">
+                                </span>
+                                <span class="text-muted small">
+                                    Max:
+                                    <strong
+                                            th:text="${q.marks}">
+                                    </strong>
+                                    marks
+                                </span>
+                            </div>
+
+                            <!-- MCQ options -->
+                            <div th:if="${q.questionType.name()
+                                == 'MCQ'}"
+                                 class="text-muted small ps-3 mb-2">
+                                <div>A:
+                                    <span th:text="${q.optionA}">
+                                    </span>
+                                </div>
+                                <div>B:
+                                    <span th:text="${q.optionB}">
+                                    </span>
+                                </div>
+                                <div>C:
+                                    <span th:text="${q.optionC}">
+                                    </span>
+                                </div>
+                                <div>D:
+                                    <span th:text="${q.optionD}">
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- correct answer -->
+                            <p class="text-success small mb-0">
+                                ✓ Correct answer:
+                                <strong
+                                        th:text="${q.correctAnswer}">
+                                </strong>
+                            </p>
+                        </div>
+
+                        <!-- marks awarded for this question -->
+                        <div class="col-md-4">
+                            <label class="form-label small">
+                                Marks awarded
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <input type="number"
+                                       class="form-control"
+                                       th:id="'marks_' + ${q.id}"
+                                       th:name="'marks_' + ${q.id}"
+                                       min="0"
+                                       th:max="${q.marks}"
+                                       value="0"
+                                       oninput="recalcTotal()"/>
+                                <span class="input-group-text"
+                                      th:text="'/ ' + ${q.marks}">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- approve form -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Approve &amp; Release Result</h3>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/results/approve/{id}
+                      (id=${result.id})}"
+                  method="post">
+
+                <!-- computed total from per-question marks above -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        Final Score
+                    </label>
+                    <div class="input-group">
+                        <input type="number"
+                               id="computedScore"
+                               class="form-control form-control-lg
+                                      bg-light fw-bold"
+                               readonly
+                               th:value="${result.totalScore}"/>
+                        <span class="input-group-text"
+                              th:text="'/ ' + ${result.totalMarks}">
+                        </span>
+                    </div>
+                    <!-- this is what gets submitted -->
+                    <input type="hidden"
+                           id="overriddenScoreHidden"
+                           name="overriddenScore"
+                           th:value="${result.totalScore}"/>
+                    <div class="form-hint">
+                        Adjust individual question marks above —
+                        total updates automatically. Or type directly
+                        in the box to override completely.
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <label class="form-label">
                         Teacher Note (optional)
                     </label>
-                    <textarea name="teacherNote" class="form-control"
-                              rows="3"
+                    <textarea name="teacherNote"
+                              class="form-control" rows="3"
                               placeholder="Feedback for the student...">
                     </textarea>
                 </div>
+
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success">
-                        ✅ Approve &amp; Release Result
+                    <button type="submit"
+                            class="btn btn-success">
+                         Approve &amp; Release to Student
                     </button>
                     <a href="/results/pending"
                        class="btn btn-outline-secondary">
@@ -124,5 +214,20 @@
         </div>
     </div>
 </div>
+
+<script th:inline="javascript">
+    // recalculate total from per-question mark inputs
+    function recalcTotal() {
+        var inputs = document.querySelectorAll(
+            'input[name^="marks_"]');
+        var total = 0;
+        inputs.forEach(function(input) {
+            total += parseFloat(input.value) || 0;
+        });
+        document.getElementById('computedScore').value = total;
+        document.getElementById('overriddenScoreHidden').value =
+            total;
+    }
+</script>
 </body>
 </html>
