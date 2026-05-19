@@ -1,3 +1,159 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
+<!--      layout:decorate="~{layout/base}">-->
+<!--<head><title>View Exam</title></head>-->
+<!--<body>-->
+<!--<div layout:fragment="content">-->
+<!--    <div class="page-header mb-3">-->
+<!--        <div class="row align-items-center">-->
+<!--            <div class="col">-->
+<!--                <h2 class="page-title"-->
+<!--                    th:text="${exam.title}"></h2>-->
+<!--            </div>-->
+<!--            <div class="col-auto">-->
+<!--                <a href="/exams"-->
+<!--                   class="btn btn-outline-secondary">-->
+<!--                    ← Back to Exams-->
+<!--                </a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; success message &ndash;&gt;-->
+<!--    <div th:if="${successMsg}"-->
+<!--         class="alert alert-success mb-3"-->
+<!--         th:text="${successMsg}"></div>-->
+<!--    <div th:if="${param.unpublished}"-->
+<!--         class="alert alert-warning mb-3">-->
+<!--        ⚠️ Exam has been successfully unpublished and reverted to Draft!-->
+<!--    </div>-->
+<!--    <div class="row">-->
+<!--        <div class="col-md-8">-->
+<!--            <div class="card mb-3">-->
+<!--                <div class="card-header">-->
+<!--                    <h3 class="card-title">Exam Details</h3>-->
+<!--                    <div class="card-options">-->
+<!--                        <span class="badge bg-success-lt"-->
+<!--                              th:if="${exam.status.name()-->
+<!--                                  == 'PUBLISHED'}">Published</span>-->
+<!--                        <span class="badge bg-secondary-lt"-->
+<!--                              th:if="${exam.status.name()-->
+<!--                                  == 'DRAFT'}">Draft</span>-->
+<!--                        <span class="badge bg-warning-lt"-->
+<!--                              th:if="${exam.status.name()-->
+<!--                                  == 'PENDING'}">Pending Approval</span>-->
+<!--                        <span class="badge bg-danger-lt"-->
+<!--                              th:if="${exam.status.name()-->
+<!--                                  == 'REJECTED'}">Rejected</span>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="card-body">-->
+<!--                    <dl class="row">-->
+<!--                        <dt class="col-4">Description</dt>-->
+<!--                        <dd class="col-8"-->
+<!--                            th:text="${exam.description}"></dd>-->
+<!--                        <dt class="col-4">Duration</dt>-->
+<!--                        <dd class="col-8"-->
+<!--                            th:text="${exam.durationMins}-->
+<!--                                + ' minutes'"></dd>-->
+<!--                        <dt class="col-4">Total Marks</dt>-->
+<!--                        <dd class="col-8"-->
+<!--                            th:text="${exam.totalMarks}"></dd>-->
+<!--                        <dt class="col-4">Module</dt>-->
+<!--                        <dd class="col-8">-->
+<!--                            <span th:if="${exam.module != null}"-->
+<!--                                  th:text="${exam.module.name}"-->
+<!--                                  class="badge bg-azure-lt"></span>-->
+<!--                            <span th:if="${exam.module == null}"-->
+<!--                                  class="text-muted">Not set</span>-->
+<!--                        </dd>-->
+<!--                        <dt class="col-4">Questions</dt>-->
+<!--                        <dd class="col-8">-->
+<!--                            MCQ:-->
+<!--                            <strong th:text="${exam.mcqCount}"></strong>-->
+<!--                            | T/F:-->
+<!--                            <strong th:text="${exam.trueFalseCount}">-->
+<!--                            </strong>-->
+<!--                            | Short:-->
+<!--                            <strong th:text="${exam.shortAnswerCount}">-->
+<!--                            </strong>-->
+<!--                        </dd>-->
+<!--                        <dt class="col-4">Created By</dt>-->
+<!--                        <dd class="col-8"-->
+<!--                            th:text="${exam.createdBy.name}"></dd>-->
+<!--                        <dt class="col-4">Created At</dt>-->
+<!--                        <dd class="col-8"-->
+<!--                            th:text="${exam.createdAt}"></dd>-->
+<!--                    </dl>-->
+<!--                </div>-->
+<!--                <div class="card-footer d-flex gap-2 flex-wrap">-->
+
+<!--                    &lt;!&ndash; teacher actions &ndash;&gt;-->
+<!--                    <span th:if="${loggedInUser.role.name() == 'TEACHER'-->
+<!--                        and exam.createdBy.id == loggedInUser.id}">-->
+<!--                        <a th:if="${exam.status.name() == 'DRAFT' or-->
+<!--                            exam.status.name() == 'REJECTED'}"-->
+<!--                           th:href="@{/exams/edit/{id}(id=${exam.id})}"-->
+<!--                           class="btn btn-primary">Edit</a>-->
+<!--                        <a th:if="${exam.status.name() == 'DRAFT' or-->
+<!--                            exam.status.name() == 'REJECTED'}"-->
+<!--                           th:href="@{/exams/submit/{id}(id=${exam.id})}"-->
+<!--                           class="btn btn-warning">-->
+<!--                            Submit for Approval-->
+<!--                        </a>-->
+<!--                        <a th:if="${exam.status.name() == 'PENDING'}"-->
+<!--                           href="/exams"-->
+<!--                           class="btn btn-outline-secondary">-->
+<!--                            ← Go Back-->
+<!--                        </a>-->
+<!--                    </span>-->
+
+<!--                    &lt;!&ndash; admin actions &ndash;&gt;-->
+<!--                    <span th:if="${loggedInUser.role.name() == 'ADMIN'}">-->
+<!--                        <a th:if="${exam.status.name() == 'PENDING'}"-->
+<!--                           th:href="@{/exams/approve/{id}(id=${exam.id})}"-->
+<!--                           class="btn btn-success">✅ Approve</a>-->
+<!--                        <a th:if="${exam.status.name() == 'PENDING'}"-->
+<!--                           th:href="@{/exams/reject/{id}(id=${exam.id})}"-->
+<!--                           class="btn btn-danger">❌ Reject</a>-->
+<!--                        <a th:if="${exam.status.name() == 'PUBLISHED'}"-->
+<!--                           th:href="@{/exams/forceunpublish/{id}(id=${exam.id})}"-->
+<!--                           onclick="return confirm('Are you sure you want to force unpublish this exam? This will stop all student access and revert it to Draft.')"-->
+<!--                           class="btn btn-warning">Force Unpublish</a>-->
+<!--                           class="btn btn-warning">Force Unpublish</a>-->
+<!--                        <a th:href="@{/exams/delete/{id}(id=${exam.id})}"-->
+<!--                           onclick="return confirm('Delete this exam?')"-->
+<!--                           class="btn btn-danger">Delete</a>-->
+<!--                    </span>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; links &ndash;&gt;-->
+<!--            <div class="d-flex gap-2 flex-wrap">-->
+<!--                <a th:if="${loggedInUser.role.name() != 'STUDENT'}"-->
+<!--                   th:href="@{/sessions/exam/{id}(id=${exam.id})}"-->
+<!--                   class="btn btn-outline-primary">-->
+<!--                    📅 Sessions-->
+<!--                </a>-->
+<!--                <a th:if="${exam.status.name() == 'PUBLISHED' and-->
+<!--                    loggedInUser.role.name() != 'STUDENT'}"-->
+<!--                   th:href="@{/attempts/exam/{id}(id=${exam.id})}"-->
+<!--                   class="btn btn-outline-secondary">-->
+<!--                    Student Attempts-->
+<!--                </a>-->
+<!--                <a th:if="${exam.status.name() == 'PUBLISHED' and-->
+<!--                    loggedInUser.role.name() != 'STUDENT'}"-->
+<!--                   th:href="@{/results/exam/{id}(id=${exam.id})}"-->
+<!--                   class="btn btn-outline-secondary">-->
+<!--                    Results-->
+<!--                </a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -20,10 +176,14 @@
         </div>
     </div>
 
-    <!-- success message -->
     <div th:if="${successMsg}"
          class="alert alert-success mb-3"
          th:text="${successMsg}"></div>
+
+    <div th:if="${param.unpublished}"
+         class="alert alert-warning mb-3">
+        ⚠️ Exam has been successfully unpublished and reverted to Draft!
+    </div>
 
     <div class="row">
         <div class="col-md-8">
@@ -86,7 +246,6 @@
                 </div>
                 <div class="card-footer d-flex gap-2 flex-wrap">
 
-                    <!-- teacher actions -->
                     <span th:if="${loggedInUser.role.name() == 'TEACHER'
                         and exam.createdBy.id == loggedInUser.id}">
                         <a th:if="${exam.status.name() == 'DRAFT' or
@@ -106,7 +265,6 @@
                         </a>
                     </span>
 
-                    <!-- admin actions -->
                     <span th:if="${loggedInUser.role.name() == 'ADMIN'}">
                         <a th:if="${exam.status.name() == 'PENDING'}"
                            th:href="@{/exams/approve/{id}(id=${exam.id})}"
@@ -115,9 +273,8 @@
                            th:href="@{/exams/reject/{id}(id=${exam.id})}"
                            class="btn btn-danger">❌ Reject</a>
                         <a th:if="${exam.status.name() == 'PUBLISHED'}"
-                           th:href="@{/exams/forceunpublish/
-                               {id}(id=${exam.id})}"
-                           onclick="return confirm('Force unpublish?')"
+                           th:href="@{/exams/forceunpublish/{id}(id=${exam.id})}"
+                           onclick="return confirm('Are you sure you want to force unpublish this exam? This will stop all student access and revert it to Draft.')"
                            class="btn btn-warning">Force Unpublish</a>
                         <a th:href="@{/exams/delete/{id}(id=${exam.id})}"
                            onclick="return confirm('Delete this exam?')"
@@ -126,7 +283,6 @@
                 </div>
             </div>
 
-            <!-- links -->
             <div class="d-flex gap-2 flex-wrap">
                 <a th:if="${loggedInUser.role.name() != 'STUDENT'}"
                    th:href="@{/sessions/exam/{id}(id=${exam.id})}"

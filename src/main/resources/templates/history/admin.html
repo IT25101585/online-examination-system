@@ -1,8 +1,182 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
+<!--      layout:decorate="~{layout/base}">-->
+<!--<head><title>History Overview</title></head>-->
+<!--<body>-->
+<!--<div layout:fragment="content">-->
+<!--    <div class="page-header mb-3">-->
+<!--        <h2 class="page-title">Exam History Overview</h2>-->
+<!--    </div>-->
+
+<!--    <div class="card mb-3">-->
+<!--        <div class="card-header">-->
+<!--            <h3 class="card-title">All Exams</h3>-->
+<!--        </div>-->
+<!--        <div class="card-body p-0">-->
+<!--            <table class="table table-vcenter card-table">-->
+<!--                <thead>-->
+<!--                <tr>-->
+<!--                    <th>Exam</th>-->
+<!--                    <th>Status</th>-->
+<!--                    <th>Total Marks</th>-->
+<!--                    <th>Actions</th>-->
+<!--                </tr>-->
+<!--                </thead>-->
+<!--                <tbody>-->
+<!--                <tr th:if="${#lists.isEmpty(exams)}">-->
+<!--                    <td colspan="4"-->
+<!--                        class="text-center text-muted py-3">-->
+<!--                        No exams yet.-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr th:each="exam : ${exams}">-->
+<!--                    <td th:text="${exam.title}"></td>-->
+<!--                    <td>-->
+<!--                            <span class="badge bg-success-lt"-->
+<!--                                  th:if="${exam.status.name()-->
+<!--                                      == 'PUBLISHED'}">Published</span>-->
+<!--                        <span class="badge bg-secondary-lt"-->
+<!--                              th:if="${exam.status.name()-->
+<!--                                      == 'DRAFT'}">Draft</span>-->
+<!--                        <span class="badge bg-warning-lt"-->
+<!--                              th:if="${exam.status.name()-->
+<!--                                      == 'PENDING'}">Pending</span>-->
+<!--                        <span class="badge bg-danger-lt"-->
+<!--                              th:if="${exam.status.name()-->
+<!--                                      == 'REJECTED'}">Rejected</span>-->
+<!--                    </td>-->
+<!--                    <td th:text="${exam.totalMarks}"></td>-->
+<!--                    <td>-->
+<!--                        <a th:href="@{/results/exam/{id}-->
+<!--                                (id=${exam.id})}"-->
+<!--                           class="btn btn-sm-->
+<!--                                      btn-outline-primary me-1">-->
+<!--                            Results-->
+<!--                        </a>-->
+<!--                        <a th:href="@{/attempts/exam/{id}-->
+<!--                                (id=${exam.id})}"-->
+<!--                           class="btn btn-sm-->
+<!--                                      btn-outline-secondary">-->
+<!--                            Attempts-->
+<!--                        </a>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                </tbody>-->
+<!--            </table>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    <div class="card"-->
+<!--         th:if="${loggedInUser.role.name() == 'ADMIN'}">-->
+<!--        <div class="card-header">-->
+<!--            <h3 class="card-title">All Students</h3>-->
+<!--        </div>-->
+<!--        <div class="card-body p-0">-->
+<!--            <table class="table table-vcenter card-table">-->
+<!--                <thead>-->
+<!--                <tr>-->
+<!--                    <th>Name</th>-->
+<!--                    <th>Email</th>-->
+<!--                    <th>Actions</th>-->
+<!--                </tr>-->
+<!--                </thead>-->
+<!--                <tbody>-->
+<!--                <tr th:if="${#lists.isEmpty(students)}">-->
+<!--                    <td colspan="3"-->
+<!--                        class="text-center text-muted py-3">-->
+<!--                        No students yet.-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr th:each="student : ${students}">-->
+<!--                    <td th:text="${student.name}"></td>-->
+<!--                    <td class="text-muted"-->
+<!--                        th:text="${student.email}"></td>-->
+<!--                    <td>-->
+<!--                        <a th:href="@{/history/student/{id}-->
+<!--                                (id=${student.id})}"-->
+<!--                           class="btn btn-sm-->
+<!--                                      btn-outline-secondary">-->
+<!--                            View History-->
+<!--                        </a>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                </tbody>-->
+<!--            </table>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    <div class="mt-3">-->
+<!--        <a href="/dashboard"-->
+<!--           class="btn btn-outline-secondary">← Dashboard</a>-->
+<!--    </div>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
-<head><title>History Overview</title></head>
+<head>
+    <title>History Overview</title>
+    <style>
+        .page-title {
+            color: #0f172a !important;
+            font-weight: 800 !important;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .table {
+            color: #1e293b !important;
+        }
+
+        .table th {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            background: rgba(0, 0, 0, 0.04) !important;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.08) !important;
+        }
+
+        .table td {
+            font-weight: 500 !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .text-dark-muted {
+            color: #475569 !important;
+            font-weight: 500;
+        }
+
+        .btn-glass-primary {
+            background: rgba(32, 107, 196, 0.1) !important;
+            color: #206bc4 !important;
+            border: 1px solid rgba(32, 107, 196, 0.4) !important;
+            font-weight: 600 !important;
+        }
+
+        .btn-glass-primary:hover {
+            background: #206bc4 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(32, 107, 196, 0.2);
+        }
+
+        .btn-glass-secondary {
+            background: rgba(71, 85, 105, 0.1) !important;
+            color: #475569 !important;
+            border: 1px solid rgba(71, 85, 105, 0.4) !important;
+            font-weight: 600 !important;
+        }
+
+        .btn-glass-secondary:hover {
+            background: #475569 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2);
+        }
+    </style>
+</head>
 <body>
 <div layout:fragment="content">
     <div class="page-header mb-3">
@@ -11,7 +185,7 @@
 
     <div class="card mb-3">
         <div class="card-header">
-            <h3 class="card-title">All Exams</h3>
+            <h3 class="card-title" style="color: #0f172a; font-weight: 700;">All Exams</h3>
         </div>
         <div class="card-body p-0">
             <table class="table table-vcenter card-table">
@@ -25,39 +199,26 @@
                 </thead>
                 <tbody>
                 <tr th:if="${#lists.isEmpty(exams)}">
-                    <td colspan="4"
-                        class="text-center text-muted py-3">
+                    <td colspan="4" class="text-center text-dark-muted py-3">
                         No exams yet.
                     </td>
                 </tr>
                 <tr th:each="exam : ${exams}">
-                    <td th:text="${exam.title}"></td>
+                    <td th:text="${exam.title}" style="color: #0f172a; font-weight: 600;"></td>
                     <td>
-                            <span class="badge bg-success-lt"
-                                  th:if="${exam.status.name()
-                                      == 'PUBLISHED'}">Published</span>
-                        <span class="badge bg-secondary-lt"
-                              th:if="${exam.status.name()
-                                      == 'DRAFT'}">Draft</span>
-                        <span class="badge bg-warning-lt"
-                              th:if="${exam.status.name()
-                                      == 'PENDING'}">Pending</span>
-                        <span class="badge bg-danger-lt"
-                              th:if="${exam.status.name()
-                                      == 'REJECTED'}">Rejected</span>
+                        <span class="badge bg-success-lt" th:if="${exam.status.name() == 'PUBLISHED'}">Published</span>
+                        <span class="badge bg-secondary-lt" th:if="${exam.status.name() == 'DRAFT'}">Draft</span>
+                        <span class="badge bg-warning-lt" th:if="${exam.status.name() == 'PENDING'}">Pending</span>
+                        <span class="badge bg-danger-lt" th:if="${exam.status.name() == 'REJECTED'}">Rejected</span>
                     </td>
-                    <td th:text="${exam.totalMarks}"></td>
+                    <td th:text="${exam.totalMarks}" style="color: #1e293b;"></td>
                     <td>
-                        <a th:href="@{/results/exam/{id}
-                                (id=${exam.id})}"
-                           class="btn btn-sm
-                                      btn-outline-primary me-1">
+                        <a th:href="@{/results/exam/{id}(id=${exam.id})}"
+                           class="btn btn-sm btn-glass-primary me-1">
                             Results
                         </a>
-                        <a th:href="@{/attempts/exam/{id}
-                                (id=${exam.id})}"
-                           class="btn btn-sm
-                                      btn-outline-secondary">
+                        <a th:href="@{/attempts/exam/{id}(id=${exam.id})}"
+                           class="btn btn-sm btn-glass-secondary">
                             Attempts
                         </a>
                     </td>
@@ -67,10 +228,9 @@
         </div>
     </div>
 
-    <div class="card"
-         th:if="${loggedInUser.role.name() == 'ADMIN'}">
+    <div class="card" th:if="${loggedInUser.role.name() == 'ADMIN'}">
         <div class="card-header">
-            <h3 class="card-title">All Students</h3>
+            <h3 class="card-title" style="color: #0f172a; font-weight: 700;">All Students</h3>
         </div>
         <div class="card-body p-0">
             <table class="table table-vcenter card-table">
@@ -83,20 +243,16 @@
                 </thead>
                 <tbody>
                 <tr th:if="${#lists.isEmpty(students)}">
-                    <td colspan="3"
-                        class="text-center text-muted py-3">
+                    <td colspan="3" class="text-center text-dark-muted py-3">
                         No students yet.
                     </td>
                 </tr>
                 <tr th:each="student : ${students}">
-                    <td th:text="${student.name}"></td>
-                    <td class="text-muted"
-                        th:text="${student.email}"></td>
+                    <td th:text="${student.name}" style="color: #0f172a; font-weight: 600;"></td>
+                    <td th:text="${student.email}" style="color: #475569;"></td>
                     <td>
-                        <a th:href="@{/history/student/{id}
-                                (id=${student.id})}"
-                           class="btn btn-sm
-                                      btn-outline-secondary">
+                        <a th:href="@{/history/student/{id}(id=${student.id})}"
+                           class="btn btn-sm btn-glass-secondary">
                             View History
                         </a>
                     </td>
@@ -107,8 +263,7 @@
     </div>
 
     <div class="mt-3">
-        <a href="/dashboard"
-           class="btn btn-outline-secondary">← Dashboard</a>
+        <a href="/dashboard" class="btn btn-glass-secondary">← Dashboard</a>
     </div>
 </div>
 </body>
