@@ -1,7 +1,7 @@
 /*!* custom overrides on top of Tabler *!*/
 
 /*.navbar-brand {*/
-/*    font-weight: 1000;*/
+/*    font-weight: 700;*/
 /*    font-size: 1.1rem;*/
 /*}*/
 
@@ -20,6 +20,10 @@
 /*    font-weight: 700;*/
 /*    color: var(--tblr-green);*/
 /*}*/
+
+/* custom overrides on top of Tabler */
+
+/* custom overrides on top of Tabler */
 
 /* custom overrides on top of Tabler */
 
@@ -131,33 +135,7 @@ body {
     transition: all 0.2s ease !important;
 }
 
-/* ===== AUTH BACKGROUND ===== */
-body.auth-page {
-    background: url('/images/download2.jpg') center center / cover no-repeat fixed;
-    min-height: 100vh;
-}
-
-/* REAL overlay (this was disabled before) */
-body.auth-page::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0);
-    z-index: 0;
-}
-
-/* IMPORTANT: Tabler page wrapper */
-body.auth-page .page {
-    background: transparent !important;
-    position: relative;
-    z-index: 1;
-}
-
-/* THIS is what was blocking your image */
-body.auth-page .card {
-    background: rgba(255, 255, 255, 0.12) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(32, 107, 196, 0.4) !important;
 }
