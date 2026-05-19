@@ -23,25 +23,112 @@
 
 /* custom overrides on top of Tabler */
 
+/* custom overrides on top of Tabler */
+
+/* custom overrides on top of Tabler */
+
+/* custom overrides on top of Tabler */
+
+/* ===== GLOBAL STYLES & ANIMATION ===== */
+body {
+    background: url('/Image/pic.jpg') center center / 115% 115% no-repeat fixed !important;
+    animation: moveBackground 25s ease-in-out infinite alternate;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif !important;
+}
+
+@keyframes moveBackground {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ===== MODERN GLASSMORPHISM NAVBAR ===== */
+.navbar, header, .navbar-transparent {
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+    padding: 0.75rem 0;
+}
+
+.navbar .nav-link {
+    color: #1e293b !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.navbar .nav-link:hover {
+    background: rgba(32, 107, 196, 0.08) !important;
+    color: #206bc4 !important;
+}
+
 .navbar-brand {
-    font-weight: 700;
-    font-size: 1.1rem;
+    color: #0f172a !important;
+    font-weight: 800 !important;
+    font-size: 1.25rem;
 }
 
-.page-wrapper {
-    padding-top: 1.5rem;
+/* ===== PREMIUM GLASS CARDS & HOVER EFFECTS ===== */
+.card, .hero-card {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06) !important;
+    border-radius: 16px !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
 }
 
-/* question toggle */
-#mcqOptions {
-    display: none;
+.card:hover, .hero-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
 }
 
-/* exam timer */
-#exam-timer {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--tblr-green);
+/* Card internal layouts */
+.card-header {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    padding: 1.25rem !important;
+}
+
+/* ===== CRITICAL TEXT READABILITY FIX ===== */
+.page-title, h2, h3, .card-title {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+}
+
+.subheader, .text-muted, .text-secondary, main th, .table th {
+    color: #475569 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.h1, .h2, .h3 {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+.table td {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+
+/* ===== ENHANCED BUTTONS ===== */
+.btn-primary {
+    background: #206bc4 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    padding: 0.5rem 1.25rem !important;
+    box-shadow: 0 4px 14px rgba(32, 107, 196, 0.3) !important;
+    transition: all 0.2s ease !important;
 }
 
 /* ===== AUTH BACKGROUND ===== */

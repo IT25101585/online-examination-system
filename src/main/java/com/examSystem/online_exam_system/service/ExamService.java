@@ -32,6 +32,7 @@ public class ExamService {
     private QuestionRepository questionRepository;
 
     // ---- CREATE EXAM ----
+    @Transactional
     public Exam createExam(Exam exam, User createdBy) {
         exam.setCreatedBy(createdBy);
         exam.setStatus(ExamStatus.DRAFT);
@@ -49,7 +50,6 @@ public class ExamService {
     }
 
     // ---- GET PENDING EXAMS ----
-    // only admin sees these — awaiting approval
     public List<Exam> getPendingExams() {
         return examRepository.findByStatus(ExamStatus.PENDING);
     }
@@ -66,6 +66,7 @@ public class ExamService {
     }
 
     // ---- UPDATE EXAM ----
+    @Transactional
     public Exam updateExam(Long id, Exam updatedExam, Long moduleId) {
         Exam existing = getExamById(id);
         existing.setTitle(updatedExam.getTitle());
@@ -89,13 +90,15 @@ public class ExamService {
     }
 
     // ---- SUBMIT FOR APPROVAL ----
+    @Transactional
     public Exam submitForApproval(Long id) {
         Exam exam = getExamById(id);
 
         if (exam.getStatus() != ExamStatus.DRAFT &&
-                exam.getStatus() != ExamStatus.REJECTED) {
+                exam.getStatus() != ExamStatus.REJECTED &&
+                exam.getStatus() != ExamStatus.UNPUBLISHED) {
             throw new RuntimeException(
-                    "Only DRAFT or REJECTED exams can be submitted!");
+                    "Only DRAFT, REJECTED or UNPUBLISHED exams can be submitted!");
         }
 
         if (exam.getModule() == null) {
@@ -104,7 +107,6 @@ public class ExamService {
                             "Questions are drawn from the module's question bank.");
         }
 
-        // check question bank has enough questions
         int mcqNeeded = exam.getMcqCount() == null ? 0 : exam.getMcqCount();
         int tfNeeded = exam.getTrueFalseCount() == null ?
                 0 : exam.getTrueFalseCount();
@@ -154,7 +156,7 @@ public class ExamService {
     }
 
     // ---- APPROVE EXAM (admin only) ----
-    // changes status from PENDING to PUBLISHED
+    @Transactional
     public Exam approveExam(Long id) {
         Exam exam = getExamById(id);
         if (exam.getStatus() != ExamStatus.PENDING) {
@@ -165,7 +167,7 @@ public class ExamService {
     }
 
     // ---- REJECT EXAM (admin only) ----
-    // changes status from PENDING back to REJECTED
+    @Transactional
     public Exam rejectExam(Long id) {
         Exam exam = getExamById(id);
         if (exam.getStatus() != ExamStatus.PENDING) {
@@ -176,20 +178,18 @@ public class ExamService {
     }
 
     // ---- FORCE UNPUBLISH (admin only) ----
-    // admin can pull any published exam at any time
+    @Transactional
     public Exam forceUnpublish(Long id) {
         Exam exam = getExamById(id);
-        exam.setStatus(ExamStatus.DRAFT);
+        exam.setStatus(ExamStatus.UNPUBLISHED);
         return examRepository.save(exam);
     }
 
     // ---- DELETE EXAM ----
-// must delete all related records first due to foreign key constraints
     @Transactional
     public void deleteExam(Long id) {
         Exam exam = getExamById(id);
 
-        // delete session questions first, then sessions
         List<ExamSession> sessions = examSessionRepository.findByExam(exam);
         for (ExamSession session : sessions) {
             List<SessionQuestion> sessionQuestions =
@@ -198,14 +198,11 @@ public class ExamService {
         }
         examSessionRepository.deleteAll(sessions);
 
-        // delete results
         resultRepository.deleteAll(resultRepository.findByExam(exam));
 
-        // delete attempts
         examAttemptRepository.deleteAll(
                 examAttemptRepository.findByExam(exam));
 
-        // now safe to delete the exam
         examRepository.deleteById(id);
     }
 }
